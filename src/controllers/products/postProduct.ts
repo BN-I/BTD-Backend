@@ -56,7 +56,7 @@ const postProduct = async (req: Request, res: Response) => {
     });
   }
 
-  if (isFeatured && typeof isFeatured !== "boolean") {
+  if (isFeatured != undefined && typeof isFeatured !== "boolean") {
     return res.status(400).json({
       message: "Is Featured should be a boolean",
     });

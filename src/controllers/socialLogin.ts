@@ -19,6 +19,7 @@ class SocialLoginController {
           loginProvider,
           role,
           token,
+          emailVerified: true,
         },
         { upsert: true, new: true }
       )

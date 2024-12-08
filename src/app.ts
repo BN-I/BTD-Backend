@@ -28,5 +28,6 @@ app.use(require("./routes/signup"));
 app.use(require("./routes/forgotPassword"));
 app.use(require("./routes/socialLogin"));
 app.use(require("./routes/products"));
+app.use(require("./routes/events"));
 
 export default app;

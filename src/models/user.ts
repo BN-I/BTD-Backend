@@ -67,6 +67,11 @@ const User = mongoose.Schema(
       default: "",
       required: false,
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
   },
   { timestamps: true }
 );
