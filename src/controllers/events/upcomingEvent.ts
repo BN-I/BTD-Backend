@@ -1,40 +1,44 @@
 import { Request, Response } from "express";
 import Event from "../../models/event";
+import user from "../../models/user";
 
 const getUpcomingEvents = async (req: Request, res: Response) => {
   const { page = 1, perPage = 10 } = req.query;
+  const { id } = req.params;
 
   const today = new Date();
+  const currentMonth = today.getUTCMonth() + 1; // Get current month (1-12)
+  const currentDay = today.getUTCDate(); // Get today's date (1-31)
   const nextMonth = new Date(today);
-  nextMonth.setMonth(today.getMonth() + 1); // Move to next month
+  nextMonth.setMonth(today.getUTCMonth() + 1); // Get the next month
+  const nextMonthNumber = nextMonth.getUTCMonth() + 1; // Get the next month number (1-12)
 
-  const currentMonth = today.getMonth(); // Current month
-  const currentDay = today.getDate(); // Current day
-  const nextMonthDate = nextMonth.getDate(); // Date for next month
+  console.log(currentMonth, currentDay, nextMonthNumber);
+
+  var conditions: Array<any> = [
+    {
+      month: currentMonth,
+      date: { $gte: currentDay },
+    },
+  ];
+
+  if (nextMonthNumber == 1) {
+    // Events in the next month
+    conditions.push({
+      month: nextMonthNumber,
+      recurringEvent: true,
+    });
+  } else {
+    conditions.push({
+      month: nextMonthNumber,
+    });
+  }
 
   try {
     // Find events that are in the upcoming month or current month, ignoring year
     const events = await Event.find({
-      // Compare the month and day (ignoring year)
-      $expr: {
-        $or: [
-          // Events within the current month
-          {
-            $and: [
-              { $eq: [{ $month: "$date" }, currentMonth] }, // Match current month
-              { $gte: [{ $dayOfMonth: "$date" }, currentDay] }, // Events that are after today
-            ],
-          },
-          // Events within the next month (can cross the year boundary)
-          {
-            $and: [
-              { $eq: [{ $month: "$date" }, (currentMonth + 1) % 12] }, // Match next month, wrap around if December
-              { $gte: [{ $dayOfMonth: "$date" }, 1] }, // Events from the start of next month onward
-              { $lte: [{ $dayOfMonth: "$date" }, nextMonthDate] }, // Events before or on the next month's date
-            ],
-          },
-        ],
-      },
+      $or: conditions,
+      user: id,
     })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));

@@ -5,8 +5,20 @@ const Event = mongoose.Schema(
       type: String,
       required: true,
     },
-    date: {
+    fullDate: {
       type: Date,
+      required: true,
+    },
+    date: {
+      type: Number,
+      required: true,
+    },
+    month: {
+      type: Number,
+      required: true,
+    },
+    year: {
+      type: Number,
       required: true,
     },
     time: {

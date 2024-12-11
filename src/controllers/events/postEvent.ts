@@ -105,10 +105,17 @@ const postEvent = async (req: Request, res: Response) => {
     });
   }
 
+  var eventDate = parsedDate?.getUTCDate();
+  var eventMonth = (parsedDate?.getUTCMonth() as number) + 1;
+  var eventYear = parsedDate?.getUTCFullYear();
+
   try {
     const event = await Event.create({
       title: title.trim(),
-      date: parsedDate,
+      fullDate: parsedDate,
+      date: eventDate,
+      month: eventMonth,
+      year: eventYear,
       time: parsedTime,
       location,
       note,

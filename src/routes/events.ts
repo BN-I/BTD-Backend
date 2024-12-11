@@ -7,13 +7,21 @@ const { updateEvent } = require("../controllers/events/updateEvent");
 const { deleteEvent } = require("../controllers/events/deleteEvent");
 const { getEvents } = require("../controllers/events/getEvents");
 const { getUpcomingEvents } = require("../controllers/events/upcomingEvent");
+const { getPastEvents } = require("../controllers/events/pastEvents");
 
-eventsRouter.get("/api/event", async (req: Request, res: Response) => {
+eventsRouter.get("/api/event/:id", async (req: Request, res: Response) => {
   getEvents(req, res);
 });
 
-eventsRouter.get("/api/event/upcoming", async (req: Request, res: Response) => {
-  getUpcomingEvents(req, res);
+eventsRouter.get(
+  "/api/event/upcoming/:id",
+  async (req: Request, res: Response) => {
+    getUpcomingEvents(req, res);
+  }
+);
+
+eventsRouter.get("/api/event/past/:id", async (req: Request, res: Response) => {
+  getPastEvents(req, res);
 });
 
 eventsRouter.post("/api/event", async (req: Request, res: Response) => {
