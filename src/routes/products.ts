@@ -5,6 +5,7 @@ import { getProducts } from "../controllers/products/getProducts";
 import { getFeaturedProducts } from "../controllers/products/getFeaturedProducts";
 import { updateProduct } from "../controllers/products/updateProduct";
 import { deleteProduct } from "../controllers/products/deleteProduct";
+import { getVendorProducts } from "../controllers/products/getVendorProducts";
 
 productsRouter.post("/api/product", async (req: Request, res: Response) => {
   postProduct(req, res);
@@ -18,6 +19,13 @@ productsRouter.get(
   "/api/product/featured",
   async (req: Request, res: Response) => {
     getFeaturedProducts(req, res);
+  }
+);
+
+productsRouter.get(
+  "/api/product/vendor/:id",
+  async (req: Request, res: Response) => {
+    getVendorProducts(req, res);
   }
 );
 
