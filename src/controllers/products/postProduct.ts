@@ -16,6 +16,8 @@ const postProduct = async (req: Request, res: Response) => {
     sizeVariations,
     vendorID,
     status,
+    link,
+    isActive,
   } = req.body;
 
   //check Required Values and their types
@@ -98,6 +100,12 @@ const postProduct = async (req: Request, res: Response) => {
     });
   }
 
+  if (link && !isValidURL(link)) {
+    return res.status(400).json({
+      message: "Link should be a valid URL",
+    });
+  }
+
   try {
     const product = await Product.create({
       title: title.trim(),
@@ -112,6 +120,7 @@ const postProduct = async (req: Request, res: Response) => {
       sizeVariations,
       vendor: vendorID,
       status,
+      link,
     });
     res.status(201).json(product);
   } catch (err) {

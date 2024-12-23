@@ -1,5 +1,6 @@
+import { link } from "fs";
 import { ProductStatus } from "../types/types";
-
+import mongooseModel from "mongoose";
 const mongoose = require("mongoose");
 
 const Product = mongoose.Schema(
@@ -55,8 +56,26 @@ const Product = mongoose.Schema(
       enum: ProductStatus,
       required: false,
     },
+    link: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    orders: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
+
+Product.pre("find", function (this: mongooseModel.Model<any>) {
+  this.populate("vendor", []);
+  this.where({ status: ProductStatus.active });
+});
+Product.pre("findOne", function (this: mongooseModel.Model<any>) {
+  this.populate("vendor", []);
+  this.where({ status: ProductStatus.active });
+});
 
 export default mongoose.model("Product", Product);

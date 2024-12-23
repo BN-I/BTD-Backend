@@ -18,6 +18,8 @@ const updateProduct = async (req: Request, res: Response) => {
     colorVariations,
     sizeVariations,
     status,
+    link,
+    isActive,
   } = req.body;
 
   if (!isValidObjectId(id)) {
@@ -97,6 +99,12 @@ const updateProduct = async (req: Request, res: Response) => {
     });
   }
 
+  if (link && !isValidURL(link)) {
+    return res.status(400).json({
+      message: "Link should be a valid URL",
+    });
+  }
+
   try {
     const product = await Product.findOneAndUpdate(
       { _id: id },
@@ -109,6 +117,7 @@ const updateProduct = async (req: Request, res: Response) => {
         isFeatured,
         colorVariations,
         sizeVariations,
+        link,
       },
       { new: true }
     );

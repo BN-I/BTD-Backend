@@ -18,7 +18,11 @@ const getUpcomingEvents = async (req: Request, res: Response) => {
   var conditions: Array<any> = [
     {
       month: currentMonth,
-      date: { $gte: currentDay },
+      date: { $gt: currentDay },
+    },
+    //event fulldate - today should be under 30 and over 0
+    {
+      fullDate: { $gt: today, $lt: nextMonth },
     },
   ];
 

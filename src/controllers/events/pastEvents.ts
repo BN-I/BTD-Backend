@@ -33,12 +33,12 @@ const getPastEvents = async (req: Request, res: Response) => {
 
         {
           month: currentMonth,
-          date: { $lt: currentDay },
+          date: { $lte: currentDay },
           year: today.getUTCFullYear(),
         },
         {
           month: currentMonth,
-          date: { $lt: currentDay },
+          date: { $lte: currentDay },
           recurringEvent: true,
         },
       ],

@@ -1,3 +1,5 @@
+import mongooseModel from "mongoose";
+
 const mongoose = require("mongoose");
 const Event = mongoose.Schema(
   {
@@ -44,10 +46,12 @@ const Event = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     gifts: [
       {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
         required: true,
       },
     ],
@@ -55,5 +59,12 @@ const Event = mongoose.Schema(
 
   { timestamps: true }
 );
+
+Event.pre("find", function (this: mongooseModel.Model<any>) {
+  this.populate("gifts", []);
+});
+Event.pre("findOne", function (this: mongooseModel.Model<any>) {
+  this.populate("gifts", []);
+});
 
 export default mongoose.model("Event", Event);

@@ -24,9 +24,12 @@ class SocialLoginController {
         { upsert: true, new: true }
       )
         .then((currentUser: any) => {
+          const userWithoutPassword = currentUser.toJSON(); // Converts Sequelize model instance to plain object
+          delete userWithoutPassword.password;
+
           res.status(200).send({
             message: "User created successfully",
-            user: currentUser,
+            user: userWithoutPassword,
           });
         })
         .catch((err: any) => {
