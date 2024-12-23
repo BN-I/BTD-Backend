@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { deleteModel } from "mongoose";
-import { deletePaymentMethod } from "../controllers/paymentMethods/deletePaymentMEthod";
+import { deletePaymentMethod } from "../controllers/paymentMethods/deletePaymentMethod";
 
 const paymentMethodRouter = require("express").Router();
 const {
