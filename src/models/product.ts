@@ -15,6 +15,11 @@ const Product = mongoose.Schema(
       default: "",
       required: false,
     },
+    category: {
+      type: String,
+      default: "",
+      required: false,
+    },
     price: {
       type: Number,
       default: 0,
@@ -65,15 +70,14 @@ const Product = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    orderMinDays  : {
+    orderMinDays: {
       type: Number,
       default: 0,
     },
-    orderMaxDays  : {
+    orderMaxDays: {
       type: Number,
       default: 365,
     },
-   
   },
   { timestamps: true }
 );

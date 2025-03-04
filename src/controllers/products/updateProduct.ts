@@ -5,22 +5,43 @@ import Product from "../../models/product";
 import { isValidHex, isValidURL } from "../../utils/helperFunctions";
 import { ProductSizes, ProductStatus } from "../../types/types";
 import { isValidObjectId } from "mongoose";
+import { uploadImages } from "../../service/s3Bucket";
 
 const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
   const {
     title,
     description,
-    price,
-    discountedPrice,
-    images,
+    category,
     isFeatured,
-    colorVariations,
-    sizeVariations,
     status,
     link,
-    isActive,
+    orderMaxDays,
+    orderMinDays,
   } = req.body;
+
+  const price = parseFloat(req.body.price);
+  const discountedPrice = req.body.discountedPrice
+    ? parseFloat(req.body.discountedPrice)
+    : null;
+  let sizeVariations;
+  let colorVariations;
+  if (req.body.sizeVariations && typeof req.body.sizeVariations === "string") {
+    sizeVariations = [req.body.sizeVariations];
+  } else {
+    sizeVariations = req.body.sizeVariations;
+  }
+
+  console.log(req.body.colorVariations);
+
+  if (
+    req.body.colorVariations &&
+    typeof req.body.colorVariations === "string"
+  ) {
+    colorVariations = [req.body.colorVariations];
+  } else {
+    colorVariations = req.body.colorVariations;
+  }
 
   if (!isValidObjectId(id)) {
     return res.status(400).json({
@@ -31,15 +52,6 @@ const updateProduct = async (req: Request, res: Response) => {
   if (title && typeof title !== "string") {
     return res.status(400).json({
       message: "Title is not valid",
-    });
-  }
-
-  if (
-    (images && !Array.isArray(images)) ||
-    (images && images.some((image: string) => !isValidURL(image)))
-  ) {
-    return res.status(400).json({
-      message: "Images URL required and should be an array of valid URLs",
     });
   }
 
@@ -55,15 +67,21 @@ const updateProduct = async (req: Request, res: Response) => {
     });
   }
 
-  if (isFeatured && typeof isFeatured !== "boolean") {
+  if (isFeatured && typeof isFeatured !== "string") {
     return res.status(400).json({
-      message: "Is Featured should be a boolean",
+      message: "Is Featured should be a string",
     });
   }
 
   if (description && typeof description !== "string") {
     return res.status(400).json({
       message: "Description should be a string",
+    });
+  }
+
+  if (category && typeof category !== "string") {
+    return res.status(400).json({
+      message: "Category should be a string",
     });
   }
 
@@ -80,7 +98,7 @@ const updateProduct = async (req: Request, res: Response) => {
   if (
     (sizeVariations && !Array.isArray(sizeVariations)) ||
     (sizeVariations &&
-      sizeVariations.some(
+      (sizeVariations as unknown as string[]).some(
         (size: string) =>
           !Object.values(ProductSizes).includes(size as ProductSizes)
       ))
@@ -105,19 +123,38 @@ const updateProduct = async (req: Request, res: Response) => {
     });
   }
 
+  if (orderMaxDays && isNaN(orderMaxDays)) {
+    return res.status(400).json({
+      message: "orderMaxDays is not valid",
+    });
+  }
+
+  if (orderMinDays && isNaN(orderMinDays)) {
+    return res.status(400).json({
+      message: "orderMinDays is not valid",
+    });
+  }
+
   try {
+    let images;
+    if (req.files) {
+      images = await uploadImages(req.files);
+    }
     const product = await Product.findOneAndUpdate(
       { _id: id },
       {
         title,
         description,
+        category: category?.trim(),
         price,
         discountedPrice,
         images,
-        isFeatured,
+        isFeatured: isFeatured === "true",
         colorVariations,
         sizeVariations,
         link,
+        orderMaxDays,
+        orderMinDays,
       },
       { new: true }
     );

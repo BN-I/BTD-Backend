@@ -114,13 +114,15 @@ const updateEvent = async (req: Request, res: Response) => {
       },
       { new: true }
     );
-
-    createNewNotification(event.user, {
-      title: "Event Updated",
-      description: "You updated an event " + event.title,
-      sendPushNotification: false,
-    });
-
+    try {
+      createNewNotification(event.user, {
+        title: "Event Updated",
+        description: "You updated an event " + event.title,
+        sendPushNotification: false,
+      });
+    } catch (err) {
+      console.log(err);
+    }
     res.status(200).json(event);
   } catch (err) {
     res.status(500).json({ message: err });

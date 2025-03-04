@@ -19,13 +19,15 @@ const deleteEvent = async (req: Request, res: Response) => {
         message: "Event not found",
       });
     }
-
-    createNewNotification(event.user, {
-      title: "Event Deleted",
-      description: "You deleted an event " + event.title,
-      sendPushNotification: false,
-    });
-
+    try {
+      createNewNotification(event.user, {
+        title: "Event Deleted",
+        description: "You deleted an event " + event.title,
+        sendPushNotification: false,
+      });
+    } catch (err) {
+      console.log(err);
+    }
     res.status(200).json(event);
   } catch (err) {
     res.status(500).json({ message: err });

@@ -7,6 +7,7 @@ const NotificationSettings = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    unique: true,
   },
   pushNotification: {
     promotion: {
@@ -17,7 +18,7 @@ const NotificationSettings = mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    events: {
+    event: {
       type: Boolean,
       default: false,
     },
@@ -25,7 +26,7 @@ const NotificationSettings = mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    recommendations: {
+    recommendation: {
       type: Boolean,
       default: false,
     },
@@ -39,7 +40,7 @@ const NotificationSettings = mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    events: {
+    event: {
       type: Boolean,
       default: false,
     },
@@ -47,12 +48,12 @@ const NotificationSettings = mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    recommendations: {
+    recommendation: {
       type: Boolean,
       default: false,
     },
   },
-  textMessages: {
+  textNotification: {
     promotion: {
       type: Boolean,
       default: false,
@@ -61,7 +62,7 @@ const NotificationSettings = mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    events: {
+    event: {
       type: Boolean,
       default: false,
     },
@@ -69,7 +70,7 @@ const NotificationSettings = mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    recommendations: {
+    recommendation: {
       type: Boolean,
       default: false,
     },

@@ -8,10 +8,18 @@ import { deleteProduct } from "../controllers/products/deleteProduct";
 import { getVendorProducts } from "../controllers/products/getVendorProducts";
 import { getNewProducts } from "../controllers/products/getNewProducts";
 import { getPopularProducts } from "../controllers/products/getPopularProducts";
+import multer from "multer";
 
-productsRouter.post("/api/product", async (req: Request, res: Response) => {
-  postProduct(req, res);
-});
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+productsRouter.post(
+  "/api/product",
+  upload.array("files", 5),
+  async (req: Request, res: Response) => {
+    postProduct(req, res);
+  }
+);
 
 productsRouter.get("/api/product", async (req: Request, res: Response) => {
   getProducts(req, res);
@@ -42,9 +50,13 @@ productsRouter.get(
   }
 );
 
-productsRouter.put("/api/product/:id", async (req: Request, res: Response) => {
-  updateProduct(req, res);
-});
+productsRouter.put(
+  "/api/product/:id",
+  upload.array("files", 5),
+  async (req: Request, res: Response) => {
+    updateProduct(req, res);
+  }
+);
 
 productsRouter.delete(
   "/api/product/:id",

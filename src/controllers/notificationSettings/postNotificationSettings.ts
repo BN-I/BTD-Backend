@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import NotificationSetrtings from "../../models/notificationSetrtings";
+import NotificationSetrtings from "../../models/notificationSettings";
 
 const postNotificationSettings = async (req: Request, res: Response) => {
-  const { pushNotification, emailNotification, textMessages, user } = req.body;
+  const { pushNotification, emailNotification, textNotification, user } =
+    req.body;
 
-  if (!pushNotification && !emailNotification && !textMessages) {
+  if (!pushNotification && !emailNotification && !textNotification) {
     return res.status(400).send({
       message: "At least one notification type must be enabled.",
     });
@@ -14,10 +15,12 @@ const postNotificationSettings = async (req: Request, res: Response) => {
     return res.status(401).send({ message: "Unauthorized" });
   }
 
+  console.log(pushNotification);
+
   try {
     const notificationSettings = await NotificationSetrtings.findOneAndUpdate(
       { user: user },
-      { $set: { pushNotification, emailNotification, textMessages } },
+      { $set: { pushNotification, emailNotification, textNotification } },
       { upsert: true, new: true }
     );
 

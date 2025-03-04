@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import User from "../models/user";
 import { UserInfo } from "os";
 import { stripe } from "../utils/stripeInstance";
+import NotificationSettings from "../models/notificationSettings";
 
 class SocialLoginController {
   static async Execute(req: Request, res: Response) {
@@ -33,10 +34,15 @@ class SocialLoginController {
         },
         { upsert: true, new: true }
       )
-        .then((currentUser: any) => {
+        .then(async (currentUser: any) => {
           const userWithoutPassword = currentUser.toJSON(); // Converts Sequelize model instance to plain object
           delete userWithoutPassword.password;
-
+          const notificationSettings = new NotificationSettings({
+            user: currentUser._id, // Link to the user
+          });
+          await notificationSettings
+            .save()
+            .catch((err: any) => console.log(err));
           res.status(200).send({
             message: "User created successfully",
             user: userWithoutPassword,

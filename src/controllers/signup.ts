@@ -3,6 +3,8 @@ import User from "../models/user";
 import bcrypt from "bcrypt";
 import { LoginProvider, UserRole } from "../types/types";
 import { stripe } from "../utils/stripeInstance";
+import notificationSetrtings from "../models/notificationSettings";
+import NotificationSettings from "../models/notificationSettings";
 
 class SignupController {
   static async Execute(req: Request, res: Response) {
@@ -62,6 +64,11 @@ class SignupController {
           role: role,
           stripeCustomerId: customer.id,
         });
+
+        const notificationSettings = new NotificationSettings({
+          user: newUser._id, // Link to the user
+        });
+        await notificationSettings.save().catch((err: any) => console.log(err));
 
         const userWithoutPassword = newUser.toJSON(); // Converts Sequelize model instance to plain object
         delete userWithoutPassword.password;
