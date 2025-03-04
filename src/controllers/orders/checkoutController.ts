@@ -57,13 +57,16 @@ const checkoutController = async (req: Request, res: Response) => {
 
         await Product.findById(giftsByVendor[vendor][0].product).then(
           (product: any) => {
-            console.log(product);
-            createNewNotification(user, {
-              title: "New Order",
-              description: "You have a new order for " + eventObj.title,
-              imageURL: product.images[0],
-              sendPushNotification: true,
-            });
+            try {
+              createNewNotification(user, {
+                title: "New Order",
+                description: "You have a new order for " + eventObj.title,
+                imageURL: product.images[0],
+                sendPushNotification: true,
+              });
+            } catch (err) {
+              console.log(err);
+            }
           }
         );
 

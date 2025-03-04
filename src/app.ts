@@ -36,4 +36,5 @@ app.use(require("./routes/user"));
 app.use(require("./routes/notifications"));
 app.use(require("./routes/notificationSettings"));
 
+// Create an event
 export default app;

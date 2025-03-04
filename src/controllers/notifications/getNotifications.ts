@@ -11,7 +11,7 @@ const getNotifications = async (req: Request, res: Response) => {
       message: "User ID is not valid",
     });
   }
-
+  console.log("/notifications");
   try {
     const notifications = await Notification.find({
       user: id,

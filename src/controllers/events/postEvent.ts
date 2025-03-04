@@ -136,15 +136,24 @@ const postEvent = async (req: Request, res: Response) => {
       user,
       gifts,
     }).then(async (event: any) => {
-      await Product.findById(gifts[0].product).then((product: any) => {
-        console.log(product);
+      if (gifts?.length > 0) {
+        await Product.findById(gifts[0].product).then((product: any) => {
+          console.log(product);
+
+          createNewNotification(user, {
+            title: "New Event Created",
+            description: "You have created a new event for " + event.title,
+            imageURL: product.images[0],
+            sendPushNotification: true,
+          });
+        });
+      } else {
         createNewNotification(user, {
           title: "New Event Created",
           description: "You have created a new event for " + event.title,
-          imageURL: product.images[0],
           sendPushNotification: true,
         });
-      });
+      }
     });
 
     res.status(201).json(event);
