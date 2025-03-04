@@ -11,6 +11,7 @@ app.use(
   cors({
     // Allow requests from all origins (or specify allowed origins)
     origin: "*",
+    methods: ["POST", "GET", "PATCH", "DELETE", "OPTIONS"],
     // Allow the following headers to be sent in the request
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
     // Allow the following headers to be exposed to the client
