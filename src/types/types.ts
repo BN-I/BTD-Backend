@@ -42,3 +42,12 @@ export interface OrderedProduct {
   price: number;
   vendor: string;
 }
+
+export enum OrderStatus {
+  paid = "paid",
+  pending = "pending",
+  processing = "processing",
+  shipped = "shipped",
+  delivered = "delivered",
+  cancelled = "cancelled",
+}

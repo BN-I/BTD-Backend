@@ -1,4 +1,4 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import Product from "../../models/product";
 import { isValidObjectId } from "mongoose";
 import { isValidHex, isValidURL } from "../../utils/helperFunctions";
