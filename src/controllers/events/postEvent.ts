@@ -4,6 +4,7 @@ import { isValidObjectId } from "mongoose";
 import { selectedProduct } from "../../types/types";
 import { createNewNotification } from "../../service/notification";
 import Product from "../../models/product";
+import { scheduleEvent } from "../../service/scheduler";
 
 const postEvent = async (req: Request, res: Response) => {
   const {
@@ -154,6 +155,8 @@ const postEvent = async (req: Request, res: Response) => {
           sendPushNotification: true,
         });
       }
+
+      scheduleEvent(event);
     });
 
     res.status(201).json(event);

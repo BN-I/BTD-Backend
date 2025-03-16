@@ -4,6 +4,8 @@ import { createServer } from "http";
 import { databaseConnect } from "./database/functions";
 import { databaseListeners } from "./database/listeners";
 var firebase = require("firebase-admin");
+import { createClient } from "redis";
+import { initializeRedisServer } from "./database/redis-clinet";
 
 const PORT = process.env.API_PORT || 8080;
 
@@ -15,6 +17,7 @@ server.listen(PORT, () => {
 function startServer() {
   databaseConnect();
   databaseListeners();
+  initializeRedisServer();
   // var serviceAccount = require("../btd-app-88754-firebase-adminsdk-df9ta-289a91df9e.json");
 
   var serviceAccount = {

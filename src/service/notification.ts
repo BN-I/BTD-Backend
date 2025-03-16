@@ -2,6 +2,8 @@ import { json } from "stream/consumers";
 import Notification from "../models/notification";
 import User from "../models/user";
 import { getMessaging } from "firebase-admin/messaging";
+import NotificationSettings from "../models/notificationSettings";
+import { createMessage } from "./twilio";
 
 export const createNewNotification = async (
   userId: string,
@@ -49,6 +51,19 @@ export const createNewNotification = async (
       .catch((err: Error) => {
         console.log(err);
       });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const sendEventNotification = async (event: any) => {
+  try {
+    const user = await User.findById(event.user);
+    const notificationSettings = await NotificationSettings.findOne({
+      user: user._id,
+    });
+
+    createMessage(event.recipientPhone, event.note);
   } catch (err) {
     console.log(err);
   }
