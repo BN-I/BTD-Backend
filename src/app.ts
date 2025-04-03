@@ -11,7 +11,7 @@ app.use(
   cors({
     // Allow requests from all origins (or specify allowed origins)
     origin: "*",
-    methods: ["POST", "GET", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS"],
     // Allow the following headers to be sent in the request
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
     // Allow the following headers to be exposed to the client
@@ -36,6 +36,7 @@ app.use(require("./routes/orders"));
 app.use(require("./routes/user"));
 app.use(require("./routes/notifications"));
 app.use(require("./routes/notificationSettings"));
+app.use(require("./routes/payments"));
 
 // Create an event
 export default app;

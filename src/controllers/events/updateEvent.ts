@@ -19,7 +19,8 @@ const updateEvent = async (req: Request, res: Response) => {
 
   var parsedDate: Date | undefined = undefined;
   var parsedTime: Date | undefined = undefined;
-
+  console.log("/updateEvent");
+  console.log(gifts);
   if (!isValidObjectId(id)) {
     return res.status(400).json({
       message: "Event ID is not valid",
