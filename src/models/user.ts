@@ -1,3 +1,5 @@
+import { PackageType } from "../types/types";
+
 const mongoose = require("mongoose");
 
 const User = mongoose.Schema(
@@ -80,6 +82,15 @@ const User = mongoose.Schema(
     FCMToken: {
       type: String,
       default: "",
+      required: false,
+    },
+    activePackage: {
+      type: String,
+      default: PackageType.free,
+      required: false,
+    },
+    packageExpiryDate: {
+      type: Date,
       required: false,
     },
   },

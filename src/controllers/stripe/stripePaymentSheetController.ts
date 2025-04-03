@@ -16,26 +16,31 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
       .status(400)
       .json({ message: "User does not have a stripe customer id" });
 
-  const ephemeralKey = await stripe.ephemeralKeys.create(
-    { customer: user?.stripeCustomerId },
-    { apiVersion: "2024-12-18.acacia" }
-  );
+  try {
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: user?.stripeCustomerId },
+      { apiVersion: "2024-12-18.acacia" }
+    );
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: amount,
-    currency: "usd",
-    customer: user?.stripeCustomerId,
-    automatic_payment_methods: {
-      enabled: true,
-    },
-  });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: "usd",
+      customer: user?.stripeCustomerId,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
 
-  res.json({
-    paymentIntent: paymentIntent.client_secret,
-    ephemeralKey: ephemeralKey.secret,
-    customer: user?.stripeCustomerId,
-    publishableKey: process.env.STRIPE_PUSLISHABLE_KEY,
-  });
+    res.json({
+      paymentIntent: paymentIntent.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customer: user?.stripeCustomerId,
+      publishableKey: process.env.STRIPE_PUSLISHABLE_KEY,
+    });
+  } catch (error) {
+    res.status(400).json({ message: "Invalid request" });
+    console.log(error);
+  }
 };
 
 module.exports = { stripePaymentSheetController };

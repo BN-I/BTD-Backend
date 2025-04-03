@@ -20,6 +20,13 @@ export enum ProductSizes {
   XXXL = "XXXL",
 }
 
+export enum PackageType {
+  free = "Free",
+  basic = "Basic",
+  premium = "Premium",
+  unlimited = "Unlimited",
+}
+
 export enum ProductStatus {
   active = "Active",
   inactive = "Inactive",

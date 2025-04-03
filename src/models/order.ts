@@ -61,6 +61,10 @@ const Order = mongoose.Schema(
       ref: "Event",
       required: true,
     },
+    amountDispatched: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
