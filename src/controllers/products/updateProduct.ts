@@ -137,27 +137,36 @@ const updateProduct = async (req: Request, res: Response) => {
 
   try {
     let images;
-    if (req.files) {
+
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      // Upload new images if provided
       images = await uploadImages(req.files);
     }
-    const product = await Product.findOneAndUpdate(
-      { _id: id },
-      {
-        title,
-        description,
-        category: category?.trim(),
-        price,
-        discountedPrice,
-        images,
-        isFeatured: isFeatured === "true",
-        colorVariations,
-        sizeVariations,
-        link,
-        orderMaxDays,
-        orderMinDays,
-      },
-      { new: true }
-    );
+
+    // Prepare update object
+    const updateFields: any = {
+      title,
+      description,
+      category: category?.trim(),
+      price,
+      discountedPrice,
+      isFeatured: isFeatured === "true",
+      colorVariations,
+      sizeVariations,
+      link,
+      orderMaxDays,
+      orderMinDays,
+    };
+
+    // Only add images to update if new images were uploaded
+    if (images) {
+      updateFields.images = images;
+    }
+
+    const product = await Product.findOneAndUpdate({ _id: id }, updateFields, {
+      new: true,
+    });
+
     res.status(200).json(product);
   } catch (err) {
     res.status(500).json({ message: err });

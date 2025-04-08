@@ -37,6 +37,7 @@ app.use(require("./routes/user"));
 app.use(require("./routes/notifications"));
 app.use(require("./routes/notificationSettings"));
 app.use(require("./routes/payments"));
+app.use(require("./routes/vendor"));
 
 // Create an event
 export default app;
