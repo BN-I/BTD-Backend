@@ -140,7 +140,10 @@ const postProduct = async (req: Request, res: Response) => {
   }
 
   try {
-    const images = await uploadImages(req.files);
+    const images = await uploadImages(
+      req.files,
+      process.env.AWS_S3_BUCKET_NAME!
+    );
     const product = await Product.create({
       title: title.trim(),
       description: description?.trim(),

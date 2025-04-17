@@ -3,7 +3,6 @@ const {
   checkoutController,
 } = require("../controllers/orders/checkoutController");
 import { Request, Response } from "express";
-import { get } from "mongoose";
 import { getStats } from "../controllers/orders/getStats";
 import { changeStatus } from "../controllers/orders/changeStatus";
 const { getVendorOrders } = require("../controllers/orders/getVendorOrders");
