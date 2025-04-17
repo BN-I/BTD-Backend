@@ -140,7 +140,7 @@ const updateProduct = async (req: Request, res: Response) => {
 
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       // Upload new images if provided
-      images = await uploadImages(req.files);
+      images = await uploadImages(req.files, process.env.AWS_S3_BUCKET_NAME!);
     }
 
     // Prepare update object
