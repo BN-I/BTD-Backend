@@ -65,6 +65,21 @@ const Order = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    shippingService: {
+      type: String,
+      default: "selfDelivery",
+      required: false,
+    },
+    trackingID: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    trackingURL: {
+      type: String,
+      default: "",
+      required: false,
+    },
   },
   { timestamps: true }
 );
