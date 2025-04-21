@@ -116,7 +116,7 @@ const updateEvent = async (req: Request, res: Response) => {
       { new: true }
     );
     try {
-      createNewNotification(event.user, {
+      createNewNotification(event.user, "event", {
         title: "Event Updated",
         description: "You updated an event " + event.title,
         sendPushNotification: false,

@@ -20,7 +20,7 @@ const deleteEvent = async (req: Request, res: Response) => {
       });
     }
     try {
-      createNewNotification(event.user, {
+      createNewNotification(event.user, "event", {
         title: "Event Deleted",
         description: "You deleted an event " + event.title,
         sendPushNotification: false,

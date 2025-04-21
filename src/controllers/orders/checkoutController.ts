@@ -58,17 +58,40 @@ const checkoutController = async (req: Request, res: Response) => {
         await Product.findById(giftsByVendor[vendor][0].product).then(
           (product: any) => {
             try {
-              createNewNotification(user, {
+              createNewNotification(user, "new_order", {
                 title: "New Order",
                 description: "You have a new order for " + eventObj.title,
                 imageURL: product.images[0],
                 sendPushNotification: true,
+              });
+
+              createNewNotification(vendor, "payment", {
+                title: "Payment Received",
+                description: `Your payment has been received for order ${newOrder._id}`,
+                sendPushNotification: false,
               });
             } catch (err) {
               console.log(err);
             }
           }
         );
+
+        var allGifts = [] as any;
+
+        for (const gift of giftsByVendor[vendor]) {
+          await Product.findById(gift.product).then((product: any) => {
+            allGifts.push(product);
+          });
+        }
+
+        createNewNotification(vendor, "new_order", {
+          title: "New Order",
+          description:
+            "You have a new order for " +
+            allGifts.map((gift: any) => gift.title).join(", "),
+          imageURL: allGifts[0].images[0],
+          sendPushNotification: false,
+        });
 
         return newOrder;
       })

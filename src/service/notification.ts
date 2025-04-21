@@ -7,6 +7,7 @@ import { createMessage } from "./twilio";
 
 export const createNewNotification = async (
   userId: string,
+  type: string,
   options: {
     title: string;
     description: string;
@@ -22,7 +23,7 @@ export const createNewNotification = async (
           description: options.description,
           user: user._id,
           isRead: false,
-          type: "new_order",
+          type: type,
         });
 
         await notification.save().catch((e: Error) => console.log(e));
