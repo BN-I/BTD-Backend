@@ -3,7 +3,7 @@ import { isValidObjectId } from "mongoose";
 import Notification from "../../models/notification";
 
 const getNotifications = async (req: Request, res: Response) => {
-  const { page = 1, perPage = 10 } = req.query;
+  const { page = 1, perPage = 10, isRead } = req.query;
   const { id } = req.params;
 
   if (!isValidObjectId(id)) {
@@ -13,6 +13,14 @@ const getNotifications = async (req: Request, res: Response) => {
   }
   console.log("/notifications");
   try {
+    const filter = {
+      user: id,
+    } as any;
+
+    if (isRead) {
+      filter["isRead"] = isRead;
+    }
+
     const notifications = await Notification.find({
       user: id,
     })
