@@ -24,6 +24,7 @@ const getNotifications = async (req: Request, res: Response) => {
     const notifications = await Notification.find({
       user: id,
     })
+      .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 

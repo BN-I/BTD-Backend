@@ -16,6 +16,7 @@ const getVendorOrders = async (req: Request, res: Response) => {
       .find({
         vendor: id,
       })
+      .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
     res.status(200).json(orders);

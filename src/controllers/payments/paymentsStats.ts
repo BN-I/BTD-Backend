@@ -12,9 +12,11 @@ const paymentsStats = async (req: Request, res: Response) => {
   }
 
   try {
-    const allOrders = await order.find({
-      vendor: id,
-    });
+    const allOrders = await order
+      .find({
+        vendor: id,
+      })
+      .sort({ createdAt: -1 });
 
     const totalEarnings = allOrders.reduce((acc: number, order: any) => {
       return acc + order.totalAmount;
@@ -23,11 +25,12 @@ const paymentsStats = async (req: Request, res: Response) => {
 
     //////////////////////////////////////
 
-    const pendingPaymentOrders = await order.find({
-      vendor: id,
-      amountDispatched: false,
-    });
-
+    const pendingPaymentOrders = await order
+      .find({
+        vendor: id,
+        amountDispatched: false,
+      })
+      .sort({ createdAt: -1 });
     const pendingPaymentOrdersAmount = pendingPaymentOrders.reduce(
       (acc: number, order: any) => {
         return acc + order.totalAmount;
@@ -37,11 +40,12 @@ const paymentsStats = async (req: Request, res: Response) => {
 
     ////////////////////////////////////////
 
-    const receivedPaymentOrders = await order.find({
-      vendor: id,
-      amountDispatched: true,
-    });
-
+    const receivedPaymentOrders = await order
+      .find({
+        vendor: id,
+        amountDispatched: true,
+      })
+      .sort({ createdAt: -1 });
     const receivedPaymentOrdersAmount = receivedPaymentOrders.reduce(
       (acc: number, order: any) => {
         return acc + order.totalAmount;

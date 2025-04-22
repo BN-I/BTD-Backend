@@ -14,7 +14,14 @@ const deleteProduct = async (req: Request, res: Response) => {
   }
 
   try {
-    const product = await Product.findByIdAndDelete(id);
+    const product = await Product.findOneAndUpdate(
+      { _id: id },
+      { isDeleted: true },
+      {
+        new: true,
+      }
+    );
+
     if (!product) {
       return res.status(404).json({
         message: "Product not found",

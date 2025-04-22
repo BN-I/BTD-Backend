@@ -78,6 +78,11 @@ const Product = mongoose.Schema(
       type: Number,
       default: 365,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
   },
   { timestamps: true }
 );
