@@ -15,6 +15,7 @@ const getVendorProducts = async (req: Request, res: Response) => {
   try {
     const products = await Product.find({
       vendor: id,
+      isDeleted: false,
     })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
