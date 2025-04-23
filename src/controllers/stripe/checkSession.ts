@@ -20,19 +20,22 @@ const checkSession = async (req: Request, res: Response) => {
       );
 
       console.log(subscription);
-      await subcriptions.findOneAndUpdate(
+      const subscriptionOBJ = await subcriptions.findOneAndUpdate(
         {
           vendorID: session.metadata.vendorID,
         },
         {
           plan: session.metadata.plan,
+          priceID: subscription.plan.id,
           amount: session.amount_total,
           startDate: new Date(subscription.current_period_start * 1000),
           endDate: new Date(subscription.current_period_end * 1000),
           status: subscription.status, // e.g., "active"
         },
-        { upsert: true }
+        { upsert: true, new: true }
       );
+
+      return res.status(200).json({ session, subscription: subscriptionOBJ });
     }
 
     return res.status(200).json({ session });

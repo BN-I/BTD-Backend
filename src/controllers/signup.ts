@@ -5,6 +5,7 @@ import { LoginProvider, UserRole } from "../types/types";
 import { stripe } from "../utils/stripeInstance";
 import notificationSetrtings from "../models/notificationSettings";
 import NotificationSettings from "../models/notificationSettings";
+import { isValidEmail } from "../utils/helperFunctions";
 
 class SignupController {
   static async Execute(req: Request, res: Response) {
@@ -17,6 +18,12 @@ class SignupController {
     if (!name || !email || !password || !loginProvider || !role) {
       return res.status(400).send({
         message: "Invalid request",
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).send({
+        message: "Invalid email provided.",
       });
     }
 
