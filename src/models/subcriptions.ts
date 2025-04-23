@@ -13,6 +13,10 @@ const Subcriptions = mongoose.Schema(
       type: String,
       required: true,
     },
+    priceID: {
+      type: String,
+      required: true,
+    },
     amount: {
       type: Number,
       required: true,
