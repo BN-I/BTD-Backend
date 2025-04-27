@@ -5,6 +5,7 @@ const {
 import { Request, Response } from "express";
 import { getStats } from "../controllers/orders/getStats";
 import { changeStatus } from "../controllers/orders/changeStatus";
+import requestPayment from "../controllers/orders/requestPayment";
 const { getVendorOrders } = require("../controllers/orders/getVendorOrders");
 const { getUserOrders } = require("../controllers/orders/getUserOrders");
 
@@ -34,6 +35,13 @@ orderRouter.get(
   "/api/orders-stats/vendor/:id",
   async (req: Request, res: Response) => {
     getStats(req, res);
+  }
+);
+
+orderRouter.post(
+  "/api/orders/request-payment/:id",
+  async (req: Request, res: Response) => {
+    requestPayment(req, res);
   }
 );
 

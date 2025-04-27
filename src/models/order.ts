@@ -80,6 +80,14 @@ const Order = mongoose.Schema(
       default: "",
       required: false,
     },
+    deliveredAt: {
+      type: Date,
+      required: false,
+    },
+    paymentRequestedAt: {
+      type: Date,
+      required: false,
+    },
   },
   { timestamps: true }
 );
