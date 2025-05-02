@@ -104,7 +104,7 @@ const User = mongoose.Schema(
     },
     status: {
       type: String,
-      default: "active",
+      default: "Active",
       required: false,
     },
   },

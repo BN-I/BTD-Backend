@@ -2,6 +2,7 @@ const userRouter = require("express").Router();
 import { Request, Response } from "express";
 import updatePackage from "../controllers/users/updatePackage";
 import getUsers from "../controllers/users/getUsers";
+import changeUserStatus from "../controllers/users/changeUserStatus";
 const updateUser = require("../controllers/users/updateUser");
 
 userRouter.get("/api/users", async (req: Request, res: Response) => {
@@ -16,6 +17,13 @@ userRouter.post(
   "/api/user/updatePackage/:id",
   async (req: Request, res: Response) => {
     updatePackage(req, res);
+  }
+);
+
+userRouter.post(
+  "/api/user/updateStatus/:id",
+  async (req: Request, res: Response) => {
+    changeUserStatus(req, res);
   }
 );
 
