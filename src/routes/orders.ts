@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { getStats } from "../controllers/orders/getStats";
 import { changeStatus } from "../controllers/orders/changeStatus";
 import requestPayment from "../controllers/orders/requestPayment";
+import { getAllOrders } from "../controllers/orders/getAllOrders";
 const { getVendorOrders } = require("../controllers/orders/getVendorOrders");
 const { getUserOrders } = require("../controllers/orders/getUserOrders");
 
@@ -30,6 +31,10 @@ orderRouter.get(
     getVendorOrders(req, res);
   }
 );
+
+orderRouter.get("/api/orders", async (req: Request, res: Response) => {
+  getAllOrders(req, res);
+});
 
 orderRouter.get(
   "/api/orders-stats/vendor/:id",

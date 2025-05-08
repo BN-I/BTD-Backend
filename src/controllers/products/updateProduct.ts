@@ -6,6 +6,7 @@ import { isValidHex, isValidURL } from "../../utils/helperFunctions";
 import { ProductSizes, ProductStatus } from "../../types/types";
 import { isValidObjectId } from "mongoose";
 import { uploadImages } from "../../service/s3Bucket";
+import { stat } from "node:fs";
 
 const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -20,12 +21,21 @@ const updateProduct = async (req: Request, res: Response) => {
     orderMinDays,
   } = req.body;
 
-  const price = parseFloat(req.body.price);
-  const discountedPrice = req.body.discountedPrice
-    ? parseFloat(req.body.discountedPrice)
-    : null;
   let sizeVariations;
   let colorVariations;
+  let price;
+  let discountedPrice;
+
+  if (req.body.price) {
+    price = parseFloat(req.body.price);
+  }
+
+  if (req.body.discountedPrice) {
+    discountedPrice = req.body.discountedPrice
+      ? parseFloat(req.body.discountedPrice)
+      : null;
+  }
+
   if (req.body.sizeVariations && typeof req.body.sizeVariations === "string") {
     sizeVariations = [req.body.sizeVariations];
   } else {
@@ -153,6 +163,7 @@ const updateProduct = async (req: Request, res: Response) => {
       isFeatured: isFeatured === "true",
       colorVariations,
       sizeVariations,
+      status,
       link,
       orderMaxDays,
       orderMinDays,
