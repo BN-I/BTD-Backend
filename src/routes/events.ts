@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import event from "../models/event";
+import { getAllEvents } from "../controllers/events/getAllEvents";
 
 const eventsRouter = require("express").Router();
 const { postEvent } = require("../controllers/events/postEvent");
@@ -19,6 +20,10 @@ eventsRouter.get(
     getUpcomingEvents(req, res);
   }
 );
+
+eventsRouter.get("/api/events", async (req: Request, res: Response) => {
+  getAllEvents(req, res);
+});
 
 eventsRouter.get("/api/event/past/:id", async (req: Request, res: Response) => {
   getPastEvents(req, res);

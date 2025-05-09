@@ -40,6 +40,7 @@ app.use(require("./routes/payments"));
 app.use(require("./routes/vendor"));
 app.use(require("./routes/store"));
 app.use(require("./routes/subscriptions"));
+app.use(require("./routes/admins"));
 
 // Create an event
 export default app;
