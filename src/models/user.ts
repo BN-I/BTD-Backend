@@ -69,6 +69,11 @@ const User = mongoose.Schema(
       default: "",
       required: false,
     },
+    countryCode: {
+      type: String,
+      default: "",
+      required: false,
+    },
     emailVerified: {
       type: Boolean,
       default: false,
@@ -91,6 +96,15 @@ const User = mongoose.Schema(
     },
     packageExpiryDate: {
       type: Date,
+      required: false,
+    },
+    lastLogin: {
+      type: Date,
+      required: false,
+    },
+    status: {
+      type: String,
+      default: "Active",
       required: false,
     },
   },

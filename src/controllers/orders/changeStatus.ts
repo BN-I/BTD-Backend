@@ -28,7 +28,13 @@ const changeStatus = async (req: Request, res: Response) => {
   try {
     const updatedOrder = await order.findByIdAndUpdate(
       orderID,
-      { status, trackingID, trackingURL, shippingService },
+      {
+        status,
+        trackingID,
+        trackingURL,
+        shippingService,
+        deliveredAt: status === "delivered" ? new Date() : undefined,
+      },
       { new: true }
     );
 

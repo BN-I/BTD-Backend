@@ -89,11 +89,9 @@ const Product = mongoose.Schema(
 
 Product.pre("find", function (this: mongooseModel.Model<any>) {
   this.populate("vendor", []);
-  this.where({ status: ProductStatus.active });
 });
 Product.pre("findOne", function (this: mongooseModel.Model<any>) {
   this.populate("vendor", []);
-  this.where({ status: ProductStatus.active });
 });
 
 export default mongoose.model("Product", Product);

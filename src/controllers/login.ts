@@ -54,6 +54,7 @@ class LoginController {
               { email: email },
               {
                 FCMToken,
+                lastLogin: new Date(),
               },
               { upsert: true, new: true }
             );

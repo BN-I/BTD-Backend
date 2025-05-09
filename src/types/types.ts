@@ -4,6 +4,13 @@ export enum UserRole {
   user = "User",
 }
 
+export enum UserStatus {
+  active = "Active",
+  inactive = "Inactive",
+  pending = "Pending",
+  suspended = "Suspended",
+  blocked = "Blocked",
+}
 export enum LoginProvider {
   local = "Local",
   google = "Google",
