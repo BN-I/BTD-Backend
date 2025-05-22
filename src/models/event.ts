@@ -77,29 +77,13 @@ const Event = mongoose.Schema(
 Event.pre("find", function (this: mongooseModel.Model<any>) {
   // Populate the gifts.product during the query execution
   this.populate("gifts.product", []);
+  this.populate("user", []);
 });
-
-// Event.post("find", function (events: any[]) {
-//   // After the find query is executed, filter out gifts with null or undefined product
-//   events.forEach((event) => {
-//     event.gifts = event.gifts.filter(
-//       (gift: { product: any }) => gift.product != null
-//     );
-//   });
-// });
 
 Event.pre("findOne", function (this: mongooseModel.Model<any>) {
   // Populate the gifts.product during the query execution
   this.populate("gifts.product", []);
+  this.populate("user", []);
 });
-
-// Event.post("findOne", function (events: any[]) {
-//   // After the find query is executed, filter out gifts with null or undefined product
-//   events.forEach((event) => {
-//     event.gifts = event.gifts.filter(
-//       (gift: { product: any }) => gift.product != null
-//     );
-//   });
-// });
 
 export default mongoose.model("Event", Event);
