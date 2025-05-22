@@ -13,7 +13,17 @@ const PaymentInformation = mongoose.Schema(
       default: "",
       required: true,
     },
-    accountHolderName: {
+    accountHolderFirstName: {
+      type: String,
+      default: "",
+      required: true,
+    },
+    accountHolderLastName: {
+      type: String,
+      default: "",
+      required: true,
+    },
+    businessUrl: {
       type: String,
       default: "",
       required: true,

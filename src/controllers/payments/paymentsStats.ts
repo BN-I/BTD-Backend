@@ -19,7 +19,7 @@ const paymentsStats = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 });
 
     const totalEarnings = allOrders.reduce((acc: number, order: any) => {
-      return acc + order.totalAmount;
+      return acc + order.totalAmount - (order.totalAmount * 8) / 100;
     }, 0);
     const totalOrders = allOrders.length;
 
@@ -33,7 +33,7 @@ const paymentsStats = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 });
     const pendingPaymentOrdersAmount = pendingPaymentOrders.reduce(
       (acc: number, order: any) => {
-        return acc + order.totalAmount;
+        return acc + order.totalAmount - (order.totalAmount * 8) / 100;
       },
       0
     );
@@ -48,7 +48,7 @@ const paymentsStats = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 });
     const receivedPaymentOrdersAmount = receivedPaymentOrders.reduce(
       (acc: number, order: any) => {
-        return acc + order.totalAmount;
+        return acc + (order.totalAmount * 8) / 100 + order.totalAmount;
       },
       0
     );

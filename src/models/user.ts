@@ -84,6 +84,10 @@ const User = mongoose.Schema(
       default: "",
       required: false,
     },
+    stripeAccountId: {
+      type: String,
+      required: false,
+    },
     FCMToken: {
       type: String,
       default: "",
