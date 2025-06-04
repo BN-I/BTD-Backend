@@ -13,8 +13,8 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:3000/dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:3000/dashboard`,
+      success_url: `https://btd-portal.vercel.app/dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://btd-portal.vercel.app/dashboard`,
       metadata: {
         vendorID,
         plan: planName,
