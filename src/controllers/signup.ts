@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import User from "../models/user";
 import bcrypt from "bcrypt";
-import { LoginProvider, UserRole } from "../types/types";
+import { LoginProvider, UserRole, UserStatus } from "../types/types";
 import { stripe } from "../utils/stripeInstance";
 import notificationSetrtings from "../models/notificationSettings";
 import NotificationSettings from "../models/notificationSettings";
@@ -70,6 +70,7 @@ class SignupController {
           loginProvider: loginProvider,
           role: role,
           stripeCustomerId: customer.id,
+          status: role === "Vendor" ? UserStatus.pending : UserStatus.active,
         });
 
         const notificationSettings = new NotificationSettings({

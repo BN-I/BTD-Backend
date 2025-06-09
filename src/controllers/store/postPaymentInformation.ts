@@ -12,6 +12,7 @@ const postPaymentInformation = async (req: Request, res: Response) => {
     businessUrl,
     accountHolderFirstName,
     accountHolderLastName,
+    bankToken,
   } = req.body;
 
   if (
@@ -21,7 +22,8 @@ const postPaymentInformation = async (req: Request, res: Response) => {
     !routingNumber ||
     !businessUrl ||
     !accountHolderFirstName ||
-    !accountHolderLastName
+    !accountHolderLastName ||
+    !bankToken
   ) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -80,28 +82,11 @@ const postPaymentInformation = async (req: Request, res: Response) => {
       console.log("account:", JSON.stringify(account));
     }
 
-    // 3. Add new external bank account
-
-    // const newExternalAccount = await stripe.accounts.createExternalAccount(
-    //   stripeAccountId,
-    //   {
-    //     external_account: {
-    //       object: "bank_account",
-    //       country: "US",
-    //       currency: "usd",
-    //       account_holder_name: `${accountHolderFirstName} ${accountHolderLastName}`,
-    //       account_holder_type: "individual",
-    //       routing_number: routingNumber,
-    //       account_number: accountNumber,
-    //     },
-    //     default_for_currency: true, // Set new one as default
-    //   }
-    // );
-
     const newExternalAccount = await stripe.accounts.createExternalAccount(
       stripeAccountId,
       {
-        external_account: "btok_us_verified", // Test bank token
+        external_account: bankToken,
+        default_for_currency: true,
       }
     );
 
