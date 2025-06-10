@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { UserStatus } from "../types/types";
 
 class LoginController {
   static async Execute(req: Request, res: Response) {
@@ -29,6 +30,13 @@ class LoginController {
         if (!result) {
           return res.status(400).json({
             message: "Invalid password",
+          });
+        }
+
+        if (user.role == "Vendor" && user.status == UserStatus.pending) {
+          return res.status(401).json({
+            message:
+              "Account verification in progress. Please try logging in again after 24 hours.",
           });
         }
 
