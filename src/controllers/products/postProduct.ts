@@ -111,14 +111,7 @@ const postProduct = async (req: Request, res: Response) => {
     });
   }
 
-  if (
-    sizeVariations &&
-    (!Array.isArray(sizeVariations) ||
-      (sizeVariations as unknown as string[]).some(
-        (size: string) =>
-          !Object.values(ProductSizes).includes(size as ProductSizes)
-      ))
-  ) {
+  if (sizeVariations && !Array.isArray(sizeVariations)) {
     return res.status(400).json({
       message:
         "Size Variations should be an array of valid sizes. Ex: " +
