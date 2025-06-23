@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Event from "../../models/event";
 import { isValidObjectId } from "mongoose";
 import { createNewNotification } from "../../service/notification";
+import { deleteScheduledEvent } from "../../service/scheduler";
 
 const deleteEvent = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -25,6 +26,8 @@ const deleteEvent = async (req: Request, res: Response) => {
         description: "You deleted an event " + event.title,
         sendPushNotification: false,
       });
+
+      deleteScheduledEvent(event);
     } catch (err) {
       console.log(err);
     }
