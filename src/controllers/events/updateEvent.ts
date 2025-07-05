@@ -3,6 +3,7 @@ import Event from "../../models/event";
 import { isValidObjectId } from "mongoose";
 import { selectedProduct } from "../../types/types";
 import { createNewNotification } from "../../service/notification";
+import { updateScheduledEvent } from "../../service/scheduler";
 
 const updateEvent = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -121,6 +122,8 @@ const updateEvent = async (req: Request, res: Response) => {
         description: "You updated an event " + event.title,
         sendPushNotification: false,
       });
+
+      await updateScheduledEvent(event);
     } catch (err) {
       console.log(err);
     }

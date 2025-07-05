@@ -64,7 +64,19 @@ export const sendEventNotification = async (event: any) => {
       user: user._id,
     });
 
-    createMessage(event.recipientPhone, event.note);
+    console.log("notificationSettings", notificationSettings); //notificationSettings
+
+    if (notificationSettings && notificationSettings?.pushNotification?.event) {
+      createNewNotification(user._id, "event", {
+        title: "Event Reminder",
+        description: "You have an event: " + event.title,
+        sendPushNotification: true,
+      });
+    }
+
+    if (notificationSettings && notificationSettings?.textNotification?.event) {
+      createMessage(event.recipientPhone, event.note);
+    }
   } catch (err) {
     console.log(err);
   }
