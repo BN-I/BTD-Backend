@@ -53,9 +53,6 @@ const postPaymentInformation = async (req: Request, res: Response) => {
         country: "US",
         email: vendor.email,
         business_type: "individual",
-        capabilities: {
-          transfers: { requested: true },
-        },
         tos_acceptance: {
           date: Math.floor(Date.now() / 1000),
           ip: req.ip,
