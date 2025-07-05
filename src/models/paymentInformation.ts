@@ -38,6 +38,51 @@ const PaymentInformation = mongoose.Schema(
       default: "",
       required: true,
     },
+
+    phoneNumber: {
+      type: String,
+      default: "",
+    },
+    addressP: {
+      type: String,
+      default: "",
+    },
+    cityP: {
+      type: String,
+      default: "",
+    },
+    stateP: {
+      type: String,
+      default: "",
+    },
+    postalCodeP: {
+      type: String,
+      default: "",
+    },
+    countryP: {
+      type: String,
+      default: "",
+    },
+    id_number: {
+      type: String,
+      default: "",
+    },
+    dobDay: {
+      type: Number,
+      default: null,
+    },
+    dobMonth: {
+      type: Number,
+      default: null,
+    },
+    dobYear: {
+      type: Number,
+      default: null,
+    },
+    industry: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
