@@ -13,6 +13,17 @@ const postPaymentInformation = async (req: Request, res: Response) => {
     accountHolderFirstName,
     accountHolderLastName,
     bankToken,
+    phoneNumber,
+    addressP,
+    cityP,
+    stateP,
+    postalCodeP,
+    countryP,
+    id_number,
+    dobDay,
+    dobMonth,
+    dobYear,
+    industry,
   } = req.body;
 
   if (
@@ -23,7 +34,18 @@ const postPaymentInformation = async (req: Request, res: Response) => {
     !businessUrl ||
     !accountHolderFirstName ||
     !accountHolderLastName ||
-    !bankToken
+    !bankToken ||
+    !phoneNumber ||
+    !addressP ||
+    !cityP ||
+    !stateP ||
+    !postalCodeP ||
+    !countryP ||
+    !id_number ||
+    !dobDay ||
+    !dobMonth ||
+    !dobYear ||
+    !industry
   ) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -39,6 +61,17 @@ const postPaymentInformation = async (req: Request, res: Response) => {
           businessUrl,
           accountNumber,
           routingNumber,
+          phoneNumber,
+          addressP,
+          cityP,
+          stateP,
+          postalCodeP,
+          countryP,
+          id_number,
+          dobDay,
+          dobMonth,
+          dobYear,
+          industry,
         },
         { new: true, upsert: true }
       );
@@ -62,17 +95,27 @@ const postPaymentInformation = async (req: Request, res: Response) => {
           ip: req.ip,
         },
         business_profile: {
-          url: businessUrl, // Include business profile URL here
+          url: businessUrl,
+          mcc: industry,
         },
         individual: {
-          first_name: accountHolderFirstName, // Include individual first name here
-          last_name: accountHolderLastName, // Include individual last name here
-          dob: {
-            day: 1,
-            month: 1,
-            year: 1990,
+          first_name: accountHolderFirstName,
+          last_name: accountHolderLastName,
+          email: vendor.email,
+          phone: phoneNumber,
+          address: {
+            line1: addressP,
+            city: cityP,
+            state: stateP,
+            postal_code: postalCodeP,
+            country: countryP,
           },
-          ssn_last_4: "0000",
+          dob: {
+            day: dobDay,
+            month: dobMonth,
+            year: dobYear,
+          },
+          id_number,
         },
       });
 
