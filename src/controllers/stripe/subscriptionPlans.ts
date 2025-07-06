@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { stripe } from "../../utils/stripeInstance";
 import { Request, Response } from "express";
+import { env } from "node:process";
 const subscriptionPlans = async (req: Request, res: Response) => {
   try {
     const prices = await stripe.prices.list({
@@ -8,6 +9,10 @@ const subscriptionPlans = async (req: Request, res: Response) => {
       active: true,
       type: "recurring",
     });
+
+    console.log("STRIPE_SECRET_KEY", process.env.STRIPE_SECRET_KEY);
+    console.log("STRIPE_PUBLISHABLE_KEY", process.env.STRIPE_PUBLISHABLE_KEY);
+    console.log("prices", prices);
 
     const plans = prices.data.map((price: any) => ({
       id: price.id,
