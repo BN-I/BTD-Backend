@@ -12,17 +12,18 @@ const subscriptionPlans = async (req: Request, res: Response) => {
 
     console.log("STRIPE_SECRET_KEY", process.env.STRIPE_SECRET_KEY);
     console.log("STRIPE_PUBLISHABLE_KEY", process.env.STRIPE_PUBLISHABLE_KEY);
-    console.log("prices", prices);
+    console.log("prices", JSON.stringify(prices.data));
 
-    const plans = prices.data.map((price: any) => ({
-      id: price.id,
-      name: price.product.name,
-      description: price.product.description,
-      price: price.unit_amount,
-      interval: price.recurring.interval,
-      price_id: price.id,
-    }));
-
+    const plans = prices.data
+      .filter((price: any) => price.product && price.product.active)
+      .map((price: any) => ({
+        id: price.id,
+        name: price.product.name,
+        description: price.product.description,
+        price: price.unit_amount,
+        interval: price.recurring.interval,
+        price_id: price.id,
+      }));
     return res.status(200).json({
       plans,
     });
