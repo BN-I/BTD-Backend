@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node build/server.js",
-    "build": "tsc",
+    "build": "tsc && node src/scripts/copy-email-templates.js",
     "dev": "cross-env nodemon src/server.ts"
   },
   "author": "",

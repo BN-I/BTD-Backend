@@ -34,6 +34,7 @@ export const sendEmail = async ({
     "emailTemplates",
     templateName
   );
+
   let html = fs.readFileSync(templatePath, "utf8");
 
   for (const [key, value] of Object.entries(variables)) {
