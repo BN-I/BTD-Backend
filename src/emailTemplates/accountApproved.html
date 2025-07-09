@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Account Approved</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f4f4;
+        color: #333333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #000;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 30px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #777777;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #000;
+        color: white !important;
+        padding: 12px 24px;
+        margin-top: 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Welcome to Before The Dates</h1>
+      </div>
+      <div class="content">
+        <h2>Hi {{vendorName}},</h2>
+        <p>
+          We're excited to let you know that your vendor account has been
+          <strong>approved</strong>! 🎉
+        </p>
+        <p>
+          You can now start listing your products and managing your store
+          through your dashboard.
+        </p>
+        <p>
+          If you have any questions or need help getting started, our team is
+          here for you.
+        </p>
+        <a href="{{dashboardUrl}}" class="btn">Go to Dashboard</a>
+      </div>
+      <div class="footer">
+        &copy; 2025 Before The Dates. All rights reserved.<br />
+        Need help? Contact us at
+        <a href="mailto:support@beforethedates.com"
+          >support@beforethedates.com</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
