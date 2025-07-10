@@ -9,4 +9,18 @@ forgotPasswordRouter.post(
   }
 );
 
+forgotPasswordRouter.post(
+  "/api/verify-otp",
+  async (req: Request, res: Response) => {
+    forgotPasswordController.verifyOTP(req, res);
+  }
+);
+
+forgotPasswordRouter.post(
+  "/api/reset-password",
+  async (req: Request, res: Response) => {
+    forgotPasswordController.resetPassword(req, res);
+  }
+);
+
 module.exports = forgotPasswordRouter;
