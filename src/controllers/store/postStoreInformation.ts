@@ -15,18 +15,7 @@ const postStoreInformation = async (req: Request, res: Response) => {
     twitter,
   } = req.body;
 
-  if (
-    !vendorID ||
-    !storeName ||
-    !storeDescription ||
-    !businessCategory ||
-    !companySize ||
-    !yearFounded ||
-    !website ||
-    !instagram ||
-    !facebook ||
-    !twitter
-  ) {
+  if (!vendorID || !storeName || !storeDescription || !businessCategory) {
     return res.status(400).json({ message: "All fields are required" });
   }
 

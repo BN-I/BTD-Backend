@@ -32,32 +32,32 @@ const StoreInformation = mongoose.Schema(
     companySize: {
       type: String,
       default: "",
-      required: true,
+      required: false,
     },
     yearFounded: {
       type: String,
       default: "",
-      required: true,
+      required: false,
     },
     website: {
       type: String,
       default: "",
-      required: true,
+      required: false,
     },
     instagram: {
       type: String,
       default: "",
-      required: true,
+      required: false,
     },
     facebook: {
       type: String,
       default: "",
-      required: true,
+      required: false,
     },
     twitter: {
       type: String,
       default: "",
-      required: true,
+      required: false,
     },
   },
   {
