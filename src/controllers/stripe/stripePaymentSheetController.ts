@@ -35,7 +35,7 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
       customer: user?.stripeCustomerId,
-      publishableKey: process.env.STRIPE_PUSLISHABLE_KEY,
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     });
   } catch (error) {
     res.status(400).json({ message: "Invalid request" });
