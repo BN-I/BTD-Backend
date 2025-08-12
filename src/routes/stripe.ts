@@ -55,7 +55,7 @@ stripeRouter.post("/api/check-session", async (req: Request, res: Response) => {
 });
 
 stripeRouter.post(
-  "/api/create-portal-session",
+  "/api/create-portal-session/:id",
   async (req: Request, res: Response) => {
     createPortalSession(req, res);
   }
