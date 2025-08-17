@@ -6,7 +6,7 @@ import NotificationSettings from "../models/notificationSettings";
 class SocialLoginController {
   static async Execute(req: Request, res: Response) {
     const { email, name, loginProvider, role, token, FCMToken } = req.body;
-
+    console.log(req.body);
     if (!email || !name || !loginProvider || !role || !token) {
       return res.status(400).send({
         message: "Invalid request",
