@@ -7,17 +7,52 @@ import { createNewNotification } from "../../service/notification";
 import Product from "../../models/product";
 
 const checkoutController = async (req: Request, res: Response) => {
-  const { orderedGifts, user, event, totalAmount } = req.body as {
+  const {
+    orderedGifts,
+    user,
+    event,
+    totalAmount,
+
+    address,
+    state,
+    city,
+    zipcode,
+    additionalAddressInfo,
+  } = req.body as {
     orderedGifts: OrderedProduct[];
     amount: number;
     vendor: string;
     user: string;
     event: string;
     totalAmount: number;
+    address: string;
+    state: string;
+    city: string;
+    zipcode: string;
+    additionalAddressInfo?: string;
   };
+
+  console.log(req.body);
 
   if (!orderedGifts || !totalAmount) {
     return res.status(400).json({ message: "Invalid request" });
+  }
+
+  if (!user) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  if (!address) {
+    return res.status(400).json({ message: "Address is required" });
+  }
+  if (!state) {
+    return res.status(400).json({ message: "State is required" });
+  }
+  if (!city) {
+    return res.status(400).json({ message: "City is required" });
+  }
+  if (!zipcode) {
+    return res.status(400).json({ message: "Zipcode is required" });
   }
 
   // Group gifts by vendor
@@ -49,6 +84,11 @@ const checkoutController = async (req: Request, res: Response) => {
           totalAmount: totalAmount,
           user,
           event,
+          address,
+          state,
+          city,
+          zipcode,
+          additionalAddressInfo,
           // Add any additional order data here like status, user info, etc.
         });
 
@@ -100,7 +140,10 @@ const checkoutController = async (req: Request, res: Response) => {
     return res
       .status(201)
       .json({ message: "Orders created successfully", orders });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: err });
+  }
 };
 
 module.exports = { checkoutController };
