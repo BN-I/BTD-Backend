@@ -11,7 +11,6 @@ const postEvent = async (req: Request, res: Response) => {
     title, //required: true
     date, //required: true
     time, //required: true
-    location, //required: true
     note, //required: false
     recipientPhone, //required: false
     recurringEvent, //required: true
@@ -65,12 +64,6 @@ const postEvent = async (req: Request, res: Response) => {
         message: "time is not valid or missing",
       });
     }
-  }
-
-  if (!location || location === "" || typeof location !== "string") {
-    return res.status(400).json({
-      message: "location is not valid or missing",
-    });
   }
 
   if (recurringEvent == undefined || typeof recurringEvent !== "boolean") {
@@ -130,7 +123,6 @@ const postEvent = async (req: Request, res: Response) => {
       month: eventMonth,
       year: eventYear,
       time: parsedTime,
-      location,
       note,
       recipientPhone,
       recurringEvent,
