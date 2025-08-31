@@ -12,67 +12,67 @@ const NotificationSettings = mongoose.Schema({
   pushNotification: {
     promotion: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     reminder: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     event: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     chat: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     recommendation: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   emailNotification: {
     promotion: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     reminder: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     event: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     chat: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     recommendation: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   textNotification: {
     promotion: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     reminder: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     event: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     chat: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     recommendation: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
 });
