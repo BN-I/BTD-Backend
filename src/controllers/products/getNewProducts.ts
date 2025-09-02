@@ -7,6 +7,7 @@ const getNewProducts = async (req: Request, res: Response) => {
     const products = await Product.find({
       isDeleted: false,
     })
+      .populate("storeInfo", "storeName")
       .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));

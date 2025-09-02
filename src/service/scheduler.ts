@@ -65,10 +65,15 @@ notificationQueue.process(async (job: any) => {
 
 function calculateDelayUntilEvent(eventDate: any, eventTime: any) {
   const now = new Date();
+
+  // Construct the full event date+time
   const eventDateTime = new Date(eventDate);
   eventDateTime.setHours(eventTime.getHours(), eventTime.getMinutes(), 0, 0);
-  console.log("eventDateTime", eventDateTime);
-  console.log("now", now);
-  console.log(eventTime.getTime() - now.getTime());
-  return eventTime.getTime() - now.getTime(); // Time difference in milliseconds
+
+  console.log("eventDateTime", eventDateTime.toISOString());
+  console.log("now", now.toISOString());
+  console.log("diff", eventDateTime.getTime() - now.getTime());
+
+  // ✅ use eventDateTime, not eventTime
+  return eventDateTime.getTime() - now.getTime();
 }

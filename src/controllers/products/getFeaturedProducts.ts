@@ -8,6 +8,7 @@ const getFeaturedProducts = async (req: Request, res: Response) => {
       isDeleted: false,
       isFeatured: true,
     })
+      .populate("storeInfo", "storeName")
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 

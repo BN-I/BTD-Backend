@@ -87,6 +87,17 @@ const Product = mongoose.Schema(
   { timestamps: true }
 );
 
+Product.virtual("storeInfo", {
+  ref: "StoreInformation",
+  localField: "vendor",
+  foreignField: "vendorID",
+  justOne: true,
+});
+
+// Ensure virtuals appear in JSON / Object
+Product.set("toObject", { virtuals: true });
+Product.set("toJSON", { virtuals: true });
+
 Product.pre("find", function (this: mongooseModel.Model<any>) {
   this.populate("vendor", []);
 });
