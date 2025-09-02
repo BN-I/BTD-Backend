@@ -17,6 +17,7 @@ const getVendorProducts = async (req: Request, res: Response) => {
       vendor: id,
       isDeleted: false,
     })
+      .populate("storeInfo", "storeName")
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 
