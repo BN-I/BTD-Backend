@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import User from "../../models/user";
 const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, phoneNumber, countryCode, address } = req.body;
+  const { name, phoneNumber, countryCode, address, signature } = req.body;
   const user = await User.findById(id);
 
   console.log(id);
@@ -13,6 +13,7 @@ const updateUser = async (req: Request, res: Response) => {
   user.phoneNumber = phoneNumber;
   user.countryCode = countryCode;
   user.streetAddress = address;
+  user.signature = signature;
 
   try {
     await user

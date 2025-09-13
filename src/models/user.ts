@@ -111,6 +111,10 @@ const User = mongoose.Schema(
       default: "Active",
       required: false,
     },
+    signature: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );
