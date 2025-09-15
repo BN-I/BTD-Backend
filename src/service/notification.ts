@@ -75,7 +75,11 @@ export const sendEventNotification = async (event: any) => {
     }
 
     if (notificationSettings && notificationSettings?.textNotification?.event) {
-      createMessage(event.recipientPhone, event.note, user.signature);
+      createMessage(
+        event.recipientPhone,
+        event.note,
+        user.signature || `— From ${user?.name}`
+      );
     }
   } catch (err) {
     console.log(err);
