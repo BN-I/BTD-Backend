@@ -14,7 +14,9 @@ const getPastEvents = async (req: Request, res: Response) => {
   const thirtyDaysAgoMonth = thirtyDaysAgo.getUTCMonth() + 1; // Get the month for 30 days ago
   const thirtyDaysAgoYear = thirtyDaysAgo.getUTCFullYear(); // Get the year for 30 days ago
 
-  console.log(thirtyDaysAgoYear, today.getUTCFullYear());
+  console.log(currentDay, "currentDay");
+  console.log(currentMonth, "currentMonth");
+  console.log(today.getUTCFullYear(), "today.getUTCFullYear()");
 
   try {
     // Find events that are in the upcoming month or current month, ignoring year

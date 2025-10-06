@@ -40,8 +40,8 @@ class SocialLoginController {
 
         // Create new user
         const newUser = new User({
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
           loginProvider,
           role,
           token,

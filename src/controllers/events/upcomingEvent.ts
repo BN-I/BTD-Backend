@@ -22,7 +22,9 @@ const getUpcomingEvents = async (req: Request, res: Response) => {
     },
     //event fulldate - today should be under 30 and over 0
     {
-      fullDate: { $gt: today, $lt: nextMonth },
+      month: { $gt: currentMonth, $lt: nextMonth },
+      date: { $gt: currentDay },
+      year: { $gte: today.getUTCFullYear() },
     },
   ];
 
