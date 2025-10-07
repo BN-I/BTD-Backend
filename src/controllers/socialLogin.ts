@@ -7,24 +7,28 @@ class SocialLoginController {
   static async Execute(req: Request, res: Response) {
     const { email, name, loginProvider, role, token, FCMToken } = req.body;
     console.log(req.body);
-    if (!email || !name || !loginProvider || !role || !token) {
-      return res.status(400).send({
-        message: "Invalid request",
-      });
+
+    if (!loginProvider || !role || !token) {
+      return res.status(400).send({ message: "Invalid request" });
     }
 
     try {
-      const existingUser = await User.findOne({ email });
+      const normalizedEmail = email ? email.trim().toLowerCase() : null;
+      let user;
 
-      if (existingUser) {
-        // Only update token and FCMToken
-        existingUser.token = token;
-        existingUser.FCMToken = FCMToken;
-        existingUser.lastLogin = new Date();
+      if (normalizedEmail) {
+        user = await User.findOne({ email: normalizedEmail });
+      } else if (loginProvider === "apple") {
+        user = await User.findOne({ token });
+      }
 
-        await existingUser.save();
+      if (user) {
+        user.token = token;
+        if (FCMToken) user.FCMToken = FCMToken;
+        user.lastLogin = new Date();
+        await user.save();
 
-        const userWithoutPassword = existingUser.toJSON();
+        const userWithoutPassword = user.toJSON();
         delete userWithoutPassword.password;
 
         return res.status(200).send({
@@ -32,16 +36,23 @@ class SocialLoginController {
           user: userWithoutPassword,
         });
       } else {
+        if (!normalizedEmail) {
+          return res.status(400).send({
+            message:
+              "Apple did not return an email. Cannot create new user without an email.",
+          });
+        }
+
         // Create Stripe customer for new user
         const customer = await stripe.customers.create({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
+          name: name?.trim() || "Apple User",
+          email: normalizedEmail,
         });
 
         // Create new user
         const newUser = new User({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
+          name: name?.trim() || "Apple User",
+          email: normalizedEmail,
           loginProvider,
           role,
           token,
@@ -68,7 +79,7 @@ class SocialLoginController {
         });
       }
     } catch (err) {
-      console.error(err);
+      console.error("SocialLoginController error:", err);
       return res.status(500).send({
         message: "Internal server error",
         error: err,
