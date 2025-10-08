@@ -29,6 +29,11 @@ const User = mongoose.Schema(
       default: "",
       required: true,
     },
+    appleUserId: {
+      type: String,
+      default: "",
+      required: false,
+    },
     role: {
       type: String,
       default: "",
