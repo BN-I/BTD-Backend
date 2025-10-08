@@ -18,7 +18,7 @@ class SocialLoginController {
 
       if (normalizedEmail) {
         user = await User.findOne({ email: normalizedEmail });
-      } else if (loginProvider === "apple") {
+      } else if (loginProvider === "Apple") {
         user = await User.findOne({ token });
       }
 
