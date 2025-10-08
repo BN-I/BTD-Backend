@@ -5,7 +5,8 @@ import NotificationSettings from "../models/notificationSettings";
 
 class SocialLoginController {
   static async Execute(req: Request, res: Response) {
-    const { email, name, loginProvider, role, token, FCMToken } = req.body;
+    const { email, name, loginProvider, role, token, FCMToken, appleUserId } =
+      req.body;
     console.log(req.body);
 
     if (!loginProvider || !role || !token) {
@@ -19,7 +20,7 @@ class SocialLoginController {
       if (normalizedEmail) {
         user = await User.findOne({ email: normalizedEmail });
       } else if (loginProvider === "Apple") {
-        user = await User.findOne({ token });
+        user = await User.findOne({ appleUserId });
       }
 
       if (user) {
@@ -45,13 +46,13 @@ class SocialLoginController {
 
         // Create Stripe customer for new user
         const customer = await stripe.customers.create({
-          name: name?.trim() || "Apple User",
+          name: name?.trim(),
           email: normalizedEmail,
         });
 
         // Create new user
         const newUser = new User({
-          name: name?.trim() || "Apple User",
+          name: name?.trim(),
           email: normalizedEmail,
           loginProvider,
           role,
@@ -59,6 +60,7 @@ class SocialLoginController {
           FCMToken,
           emailVerified: true,
           stripeCustomerId: customer.id,
+          appleUserId,
         });
 
         await newUser.save();
