@@ -65,6 +65,10 @@ const Event = mongoose.Schema(
         },
       },
     ],
+    checkoutCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   { timestamps: true }

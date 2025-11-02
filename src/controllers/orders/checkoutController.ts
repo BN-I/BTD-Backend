@@ -95,8 +95,8 @@ const checkoutController = async (req: Request, res: Response) => {
         // Save the order to the database
         await newOrder.save();
 
-        await Product.findById(giftsByVendor[vendor][0].product).then(
-          (product: any) => {
+        await Product.findById(giftsByVendor[vendor][0].product)
+          .then((product: any) => {
             try {
               createNewNotification(user, "new_order", {
                 title: "New Order",
@@ -113,8 +113,8 @@ const checkoutController = async (req: Request, res: Response) => {
             } catch (err) {
               console.log(err);
             }
-          }
-        );
+          })
+          .catch((err: any) => console.log(err));
 
         var allGifts = [] as any;
 
@@ -132,6 +132,9 @@ const checkoutController = async (req: Request, res: Response) => {
           imageURL: allGifts[0].images[0],
           sendPushNotification: false,
         });
+
+        eventObj.checkoutCompleted = true;
+        await eventObj.save();
 
         return newOrder;
       })
