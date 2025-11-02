@@ -149,9 +149,9 @@ const postEvent = async (req: Request, res: Response) => {
       }
 
       scheduleEvent(event);
-    });
 
-    res.status(201).json(event);
+      return res.status(201).json(event);
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Something went wrong", err });
