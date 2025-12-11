@@ -78,6 +78,11 @@ const Product = mongoose.Schema(
       type: Number,
       default: 365,
     },
+    weight: {
+      type: Number,
+      default: 0,
+      required: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

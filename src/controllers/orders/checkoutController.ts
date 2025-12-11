@@ -14,7 +14,9 @@ const checkoutController = async (req: Request, res: Response) => {
     user,
     event,
     totalAmount,
-
+    subtotal,
+    taxAmount,
+    shippingAmount,
     address,
     state,
     city,
@@ -27,6 +29,9 @@ const checkoutController = async (req: Request, res: Response) => {
     user: string;
     event: string;
     totalAmount: number;
+    subtotal?: number;
+    taxAmount?: number;
+    shippingAmount?: number;
     address: string;
     state: string;
     city: string;
@@ -76,14 +81,41 @@ const checkoutController = async (req: Request, res: Response) => {
         const vendorGifts = giftsByVendor[vendor];
         console.log(typeof vendor);
 
-        const amount = vendorGifts.reduce((acc, gift) => acc + gift.price, 0);
+        // Calculate vendor subtotal (assuming prices are in dollars, convert to cents)
+        const vendorSubtotal = Math.round(
+          vendorGifts.reduce((acc, gift) => acc + gift.price, 0) * 100
+        );
+        
+        // Calculate vendor's portion of tax and shipping (proportional to their subtotal)
+        // Note: subtotal, taxAmount, shippingAmount from request are in cents
+        // We need to convert to dollars for database storage
+        const totalSubtotalCents = subtotal 
+          ? subtotal 
+          : Math.round(orderedGifts.reduce((acc, gift) => acc + gift.price, 0) * 100);
+        
+        const vendorTaxAmountCents = subtotal && taxAmount 
+          ? Math.round((vendorSubtotal / totalSubtotalCents) * taxAmount)
+          : 0;
+        const vendorShippingAmountCents = subtotal && shippingAmount
+          ? Math.round((vendorSubtotal / totalSubtotalCents) * shippingAmount)
+          : 0;
+        const vendorTotalAmountCents = vendorSubtotal + vendorTaxAmountCents + vendorShippingAmountCents;
+
+        // Convert to dollars for database storage (assuming database stores in dollars)
+        const vendorSubtotalDollars = vendorSubtotal / 100;
+        const vendorTaxAmountDollars = vendorTaxAmountCents / 100;
+        const vendorShippingAmountDollars = vendorShippingAmountCents / 100;
+        const vendorTotalAmountDollars = vendorTotalAmountCents / 100;
 
         // Create a new order record for this vendor
         const newOrder = new order({
           vendor,
           gifts: vendorGifts,
-          amount: amount,
-          totalAmount: totalAmount,
+          amount: vendorSubtotalDollars,
+          subtotal: vendorSubtotalDollars,
+          taxAmount: vendorTaxAmountDollars,
+          shippingAmount: vendorShippingAmountDollars,
+          totalAmount: vendorTotalAmountDollars,
           user,
           event,
           address,
@@ -213,6 +245,21 @@ const checkoutController = async (req: Request, res: Response) => {
               ? `${additionalAddressInfo}<br />`
               : "";
 
+            // Format tax and shipping rows for email
+            const taxAmountRow = vendorTaxAmountDollars > 0
+              ? `<div class="order-info-row">
+                  <span class="order-info-label">Tax:</span>
+                  <span class="order-info-value">$${vendorTaxAmountDollars.toFixed(2)}</span>
+                </div>`
+              : "";
+            
+            const shippingAmountRow = vendorShippingAmountDollars > 0
+              ? `<div class="order-info-row">
+                  <span class="order-info-label">Shipping:</span>
+                  <span class="order-info-value">$${vendorShippingAmountDollars.toFixed(2)}</span>
+                </div>`
+              : "";
+
             await sendEmail({
               to: vendorUser.email,
               subject: `New Order Received - Order #${newOrder._id}`,
@@ -233,8 +280,12 @@ const checkoutController = async (req: Request, res: Response) => {
                 state: state,
                 zipcode: zipcode,
                 additionalAddressInfo: additionalAddressHTML,
-                subtotal: amount.toFixed(2),
-                totalAmount: amount.toFixed(2),
+                subtotal: vendorSubtotalDollars.toFixed(2),
+                taxAmount: vendorTaxAmountDollars.toFixed(2),
+                shippingAmount: vendorShippingAmountDollars.toFixed(2),
+                taxAmountRow: taxAmountRow,
+                shippingAmountRow: shippingAmountRow,
+                totalAmount: vendorTotalAmountDollars.toFixed(2),
                 dashboardUrl: process.env.DASHBOARD_URL 
                   ? `${process.env.DASHBOARD_URL}/dashboard/orders`
                   : "#",
