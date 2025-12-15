@@ -1,88 +1,249 @@
+import { easypost } from "../utils/easypostInstance";
+
 interface ShippingCalculationParams {
-  totalWeight: number; // Total weight in pounds
+  totalWeight: number; // Total weight in grams
+  dimensions?: {
+    length: number; // Length in cm
+    width: number; // Width in cm
+    height: number; // Height in cm
+  };
   address: {
+    street1: string;
+    street2?: string;
+    city: string;
     state: string;
-    city?: string;
     zipcode: string;
+    country?: string;
+  };
+  fromAddress?: {
+    street1: string;
+    street2?: string;
+    city: string;
+    state: string;
+    zipcode: string;
+    country?: string;
   };
 }
 
+interface ShippingRate {
+  service: string;
+  carrier: string;
+  rate: number; // Rate in cents
+  estimatedDays?: number;
+}
+
 interface ShippingCalculationResult {
-  shippingAmount: number; // Shipping cost in cents
+  shippingAmount: number; // Shipping cost in cents (cheapest rate)
+  availableRates: ShippingRate[]; // All available shipping rates
   estimatedDays?: number; // Estimated delivery days
+  error?: string;
 }
 
 /**
- * Simple weight-based shipping calculation
- * This is a basic implementation that can be customized based on your needs
- * 
- * Shipping rates (in cents):
- * - 0-1 lbs: $5.00 (500 cents)
- * - 1-5 lbs: $8.00 (800 cents)
- * - 5-10 lbs: $12.00 (1200 cents)
- * - 10-20 lbs: $18.00 (1800 cents)
- * - 20+ lbs: $25.00 (2500 cents)
+ * Calculate shipping rates using EasyPost API
  * 
  * @param params - Shipping calculation parameters
+ * @returns Promise with shipping rates
+ */
+export const calculateShipping = async (
+  params: ShippingCalculationParams
+): Promise<ShippingCalculationResult> => {
+  try {
+    const {
+      totalWeight,
+      dimensions,
+      address,
+      fromAddress,
+    } = params;
+
+    // Default origin address (can be configured via environment variables)
+    const originAddress = fromAddress || {
+      street1: process.env.SHIPPING_ORIGIN_STREET1 || "123 Main St",
+      city: process.env.SHIPPING_ORIGIN_CITY || "New York",
+      state: process.env.SHIPPING_ORIGIN_STATE || "NY",
+      zipcode: process.env.SHIPPING_ORIGIN_ZIPCODE || "10001",
+      country: process.env.SHIPPING_ORIGIN_COUNTRY || "US",
+    };
+
+    // Convert weight from grams to ounces (EasyPost uses ounces)
+    const weightInOunces = totalWeight / 28.3495;
+
+    // Create parcel with weight and dimensions
+    const parcelData: any = {
+      weight: parseFloat(weightInOunces.toFixed(2)),
+    };
+
+    // Add dimensions if provided (convert from cm to inches)
+    if (dimensions) {
+      parcelData.length = parseFloat((dimensions.length / 2.54).toFixed(2));
+      parcelData.width = parseFloat((dimensions.width / 2.54).toFixed(2));
+      parcelData.height = parseFloat((dimensions.height / 2.54).toFixed(2));
+    }
+
+    const parcel = new easypost.Parcel(parcelData);
+
+    // Create destination address
+    const toAddress = new easypost.Address({
+      street1: address.street1,
+      street2: address.street2,
+      city: address.city,
+      state: address.state,
+      zip: address.zipcode,
+      country: address.country || "US",
+    });
+
+    // Create origin address
+    const fromAddr = new easypost.Address({
+      street1: originAddress.street1,
+      street2: originAddress.street2,
+      city: originAddress.city,
+      state: originAddress.state,
+      zip: originAddress.zipcode,
+      country: originAddress.country || "US",
+    });
+
+    // Create shipment
+    const shipment = new easypost.Shipment({
+      to_address: toAddress,
+      from_address: fromAddr,
+      parcel: parcel,
+    });
+
+    // Get shipping rates
+    const createdShipment = await shipment.save();
+    const rates = createdShipment.rates || [];
+
+    // Convert rates to our format
+    const availableRates: ShippingRate[] = rates.map((rate: any) => ({
+      service: rate.service || "",
+      carrier: rate.carrier || "",
+      rate: Math.round(parseFloat(rate.rate) * 100), // Convert to cents
+      estimatedDays: rate.est_delivery_days
+        ? parseInt(rate.est_delivery_days)
+        : undefined,
+    }));
+
+    // Find cheapest rate
+    const cheapestRate = availableRates.reduce((prev, current) =>
+      prev.rate < current.rate ? prev : current
+    );
+
+    return {
+      shippingAmount: cheapestRate.rate,
+      availableRates,
+      estimatedDays: cheapestRate.estimatedDays,
+    };
+  } catch (error: any) {
+    console.error("Error calculating shipping with EasyPost:", error);
+
+    // Fallback to simple weight-based calculation if EasyPost fails
+    return calculateShippingFallback(params.totalWeight);
+  }
+};
+
+/**
+ * Fallback shipping calculation if EasyPost API fails
+ * Simple weight-based calculation
+ * 
+ * @param totalWeight - Total weight in grams
  * @returns Shipping amount in cents
  */
-export const calculateShipping = (
-  params: ShippingCalculationParams
+const calculateShippingFallback = (
+  totalWeight: number
 ): ShippingCalculationResult => {
-  const { totalWeight } = params;
+  // Convert grams to pounds for fallback calculation
+  const weightInPounds = totalWeight / 453.592;
 
-  // Default shipping rates based on weight (in cents)
   let shippingAmount = 0;
 
   if (totalWeight <= 0) {
     shippingAmount = 0;
-  } else if (totalWeight <= 1) {
+  } else if (weightInPounds <= 1) {
     shippingAmount = 500; // $5.00
-  } else if (totalWeight <= 5) {
+  } else if (weightInPounds <= 5) {
     shippingAmount = 800; // $8.00
-  } else if (totalWeight <= 10) {
+  } else if (weightInPounds <= 10) {
     shippingAmount = 1200; // $12.00
-  } else if (totalWeight <= 20) {
+  } else if (weightInPounds <= 20) {
     shippingAmount = 1800; // $18.00
   } else {
     shippingAmount = 2500; // $25.00
   }
 
-  // Estimate delivery days based on weight (optional)
-  let estimatedDays = 3; // Default 3 days
-  if (totalWeight > 20) {
-    estimatedDays = 5;
-  } else if (totalWeight > 10) {
-    estimatedDays = 4;
-  }
-
   return {
     shippingAmount,
-    estimatedDays,
+    availableRates: [
+      {
+        service: "Standard",
+        carrier: "Fallback",
+        rate: shippingAmount,
+        estimatedDays: 3,
+      },
+    ],
+    estimatedDays: 3,
   };
 };
 
 /**
- * Calculate shipping for multiple products based on their total weight
+ * Calculate shipping for multiple products based on their total weight and dimensions
  * 
- * @param productWeights - Array of product weights in pounds
+ * @param productWeights - Array of product weights in grams
+ * @param productDimensions - Array of product dimensions in cm (optional)
  * @param address - Shipping address
- * @returns Shipping amount in cents
+ * @param fromAddress - Origin address (optional)
+ * @returns Promise with shipping rates
  */
-export const calculateOrderShipping = (
+export const calculateOrderShipping = async (
   productWeights: number[],
   address: {
+    street1: string;
+    street2?: string;
+    city: string;
     state: string;
-    city?: string;
     zipcode: string;
+    country?: string;
+  },
+  productDimensions?: Array<{
+    length: number;
+    width: number;
+    height: number;
+  }>,
+  fromAddress?: {
+    street1: string;
+    street2?: string;
+    city: string;
+    state: string;
+    zipcode: string;
+    country?: string;
   }
-): ShippingCalculationResult => {
+): Promise<ShippingCalculationResult> => {
   // Sum all product weights
   const totalWeight = productWeights.reduce((sum, weight) => sum + weight, 0);
 
+  // Calculate combined dimensions if provided
+  let combinedDimensions;
+  if (productDimensions && productDimensions.length > 0) {
+    // Simple approach: use the largest dimensions
+    // In production, you might want to use a more sophisticated box packing algorithm
+    const maxLength = Math.max(...productDimensions.map((d) => d.length));
+    const maxWidth = Math.max(...productDimensions.map((d) => d.width));
+    const totalHeight = productDimensions.reduce(
+      (sum, d) => sum + d.height,
+      0
+    );
+
+    combinedDimensions = {
+      length: maxLength,
+      width: maxWidth,
+      height: totalHeight,
+    };
+  }
+
   return calculateShipping({
     totalWeight,
+    dimensions: combinedDimensions,
     address,
+    fromAddress,
   });
 };
 
@@ -91,23 +252,26 @@ export const calculateOrderShipping = (
  * This can be used to customize shipping rates per state, zipcode, etc.
  * 
  * @param state - State code
- * @param weight - Total weight in pounds
- * @returns Shipping amount in cents
+ * @param weight - Total weight in grams
+ * @param address - Full address object
+ * @returns Promise with shipping amount in cents
  */
-export const getShippingRate = (
+export const getShippingRate = async (
   state: string,
-  weight: number
-): number => {
-  // You can customize rates per state here
-  // For now, using the standard weight-based calculation
-  const result = calculateShipping({
+  weight: number,
+  address: {
+    street1: string;
+    street2?: string;
+    city: string;
+    state: string;
+    zipcode: string;
+    country?: string;
+  }
+): Promise<number> => {
+  const result = await calculateShipping({
     totalWeight: weight,
-    address: {
-      state,
-      zipcode: "",
-    },
+    address,
   });
 
   return result.shippingAmount;
 };
-

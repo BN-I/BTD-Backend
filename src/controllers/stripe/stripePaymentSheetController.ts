@@ -38,6 +38,7 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
         orderedGifts,
         address: {
           line1: address.line1,
+          line2: address.line2,
           city: address.city,
           state: address.state,
           zipcode: address.zipcode,
