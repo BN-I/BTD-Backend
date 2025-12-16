@@ -13,16 +13,9 @@ interface OrderCalculationParams {
     zipcode: string;
     country?: string;
   };
+  vendorId: string; // Vendor ID to get their address from BusinessInformation
   customerId?: string;
   currency?: string;
-  fromAddress?: {
-    street1: string;
-    street2?: string;
-    city: string;
-    state: string;
-    zipcode: string;
-    country?: string;
-  };
 }
 
 interface OrderCalculationResult {
@@ -76,7 +69,7 @@ export const calculateOrderTotals = async (
     };
   });
 
-  // Calculate shipping using EasyPost
+  // Calculate shipping using EasyPost (from vendor location to delivery address)
   const shippingResult = await calculateOrderShipping(
     productWeights,
     {
@@ -87,8 +80,8 @@ export const calculateOrderTotals = async (
       zipcode: address.zipcode,
       country: address.country || "US",
     },
-    productDimensions,
-    params.fromAddress
+    params.vendorId,
+    productDimensions
   );
 
   // Calculate tax using Stripe Tax
@@ -115,6 +108,7 @@ export const calculateOrderTotals = async (
     totalAmount,
     taxRate: taxResult.taxRate,
     estimatedDeliveryDays: shippingResult.estimatedDays,
+    shippingRates: shippingResult.availableRates,
   };
 };
 
