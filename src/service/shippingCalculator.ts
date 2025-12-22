@@ -1,4 +1,5 @@
 import { easypost } from "../utils/easypostInstance";
+import BusinessInformation from "../models/businessInformation";
 
 interface ShippingCalculationParams {
   totalWeight: number; // Total weight in grams
@@ -7,7 +8,7 @@ interface ShippingCalculationParams {
     width: number; // Width in cm
     height: number; // Height in cm
   };
-  address: {
+  toAddress: {
     street1: string;
     street2?: string;
     city: string;
@@ -15,14 +16,7 @@ interface ShippingCalculationParams {
     zipcode: string;
     country?: string;
   };
-  fromAddress?: {
-    street1: string;
-    street2?: string;
-    city: string;
-    state: string;
-    zipcode: string;
-    country?: string;
-  };
+  vendorId: string; // Vendor ID to get their address from BusinessInformation
 }
 
 interface ShippingRate {
@@ -34,13 +28,15 @@ interface ShippingRate {
 
 interface ShippingCalculationResult {
   shippingAmount: number; // Shipping cost in cents (cheapest rate)
-  availableRates: ShippingRate[]; // All available shipping rates
+  availableRates: ShippingRate[]; // All available shipping rates from DHL, USPS, UPS, FedEx
   estimatedDays?: number; // Estimated delivery days
   error?: string;
 }
 
 /**
  * Calculate shipping rates using EasyPost API
+ * Gets rates from vendor's location (from BusinessInformation) to delivery address
+ * Only returns rates from DHL, USPS, UPS, and FedEx
  * 
  * @param params - Shipping calculation parameters
  * @returns Promise with shipping rates
@@ -49,21 +45,16 @@ export const calculateShipping = async (
   params: ShippingCalculationParams
 ): Promise<ShippingCalculationResult> => {
   try {
-    const {
-      totalWeight,
-      dimensions,
-      address,
-      fromAddress,
-    } = params;
+    const { totalWeight, dimensions, toAddress, vendorId } = params;
 
-    // Default origin address (can be configured via environment variables)
-    const originAddress = fromAddress || {
-      street1: process.env.SHIPPING_ORIGIN_STREET1 || "123 Main St",
-      city: process.env.SHIPPING_ORIGIN_CITY || "New York",
-      state: process.env.SHIPPING_ORIGIN_STATE || "NY",
-      zipcode: process.env.SHIPPING_ORIGIN_ZIPCODE || "10001",
-      country: process.env.SHIPPING_ORIGIN_COUNTRY || "US",
-    };
+    // Get vendor's address from BusinessInformation
+    const businessInfo = await BusinessInformation.findOne({
+      vendorID: vendorId,
+    });
+
+    if (!businessInfo) {
+      throw new Error("Vendor business information not found");
+    }
 
     // Convert weight from grams to ounces (EasyPost uses ounces)
     const weightInOunces = totalWeight / 28.3495;
@@ -83,29 +74,28 @@ export const calculateShipping = async (
     const parcel = new easypost.Parcel(parcelData);
 
     // Create destination address
-    const toAddress = new easypost.Address({
-      street1: address.street1,
-      street2: address.street2,
-      city: address.city,
-      state: address.state,
-      zip: address.zipcode,
-      country: address.country || "US",
+    const destinationAddress = new easypost.Address({
+      street1: toAddress.street1,
+      street2: toAddress.street2,
+      city: toAddress.city,
+      state: toAddress.state,
+      zip: toAddress.zipcode,
+      country: toAddress.country || "US",
     });
 
-    // Create origin address
-    const fromAddr = new easypost.Address({
-      street1: originAddress.street1,
-      street2: originAddress.street2,
-      city: originAddress.city,
-      state: originAddress.state,
-      zip: originAddress.zipcode,
-      country: originAddress.country || "US",
+    // Create origin address from vendor's business information
+    const originAddress = new easypost.Address({
+      street1: businessInfo.businessAddress,
+      city: businessInfo.city,
+      state: businessInfo.state,
+      zip: businessInfo.postalCode,
+      country: businessInfo.country || "US",
     });
 
     // Create shipment
     const shipment = new easypost.Shipment({
-      to_address: toAddress,
-      from_address: fromAddr,
+      to_address: destinationAddress,
+      from_address: originAddress,
       parcel: parcel,
     });
 
@@ -113,8 +103,14 @@ export const calculateShipping = async (
     const createdShipment = await shipment.save();
     const rates = createdShipment.rates || [];
 
+    // Filter rates to only include DHL, USPS, UPS, FedEx
+    const allowedCarriers = ["DHL", "USPS", "UPS", "FedEx"];
+    const filteredRates = rates.filter((rate: any) =>
+      allowedCarriers.includes(rate.carrier)
+    );
+
     // Convert rates to our format
-    const availableRates: ShippingRate[] = rates.map((rate: any) => ({
+    const availableRates: ShippingRate[] = filteredRates.map((rate: any) => ({
       service: rate.service || "",
       carrier: rate.carrier || "",
       rate: Math.round(parseFloat(rate.rate) * 100), // Convert to cents
@@ -123,10 +119,16 @@ export const calculateShipping = async (
         : undefined,
     }));
 
+    // Sort rates by price (lowest first)
+    availableRates.sort((a, b) => a.rate - b.rate);
+
     // Find cheapest rate
-    const cheapestRate = availableRates.reduce((prev, current) =>
-      prev.rate < current.rate ? prev : current
-    );
+    const cheapestRate =
+      availableRates.length > 0 ? availableRates[0] : null;
+
+    if (!cheapestRate) {
+      throw new Error("No shipping rates available from allowed carriers");
+    }
 
     return {
       shippingAmount: cheapestRate.rate,
@@ -189,13 +191,13 @@ const calculateShippingFallback = (
  * 
  * @param productWeights - Array of product weights in grams
  * @param productDimensions - Array of product dimensions in cm (optional)
- * @param address - Shipping address
- * @param fromAddress - Origin address (optional)
+ * @param toAddress - Delivery address
+ * @param vendorId - Vendor ID to get their address from BusinessInformation
  * @returns Promise with shipping rates
  */
 export const calculateOrderShipping = async (
   productWeights: number[],
-  address: {
+  toAddress: {
     street1: string;
     street2?: string;
     city: string;
@@ -203,19 +205,12 @@ export const calculateOrderShipping = async (
     zipcode: string;
     country?: string;
   },
+  vendorId: string,
   productDimensions?: Array<{
     length: number;
     width: number;
     height: number;
-  }>,
-  fromAddress?: {
-    street1: string;
-    street2?: string;
-    city: string;
-    state: string;
-    zipcode: string;
-    country?: string;
-  }
+  }>
 ): Promise<ShippingCalculationResult> => {
   // Sum all product weights
   const totalWeight = productWeights.reduce((sum, weight) => sum + weight, 0);
@@ -242,35 +237,35 @@ export const calculateOrderShipping = async (
   return calculateShipping({
     totalWeight,
     dimensions: combinedDimensions,
-    address,
-    fromAddress,
+    toAddress,
+    vendorId,
   });
 };
 
 /**
  * Get shipping rate configuration
- * This can be used to customize shipping rates per state, zipcode, etc.
  * 
- * @param state - State code
  * @param weight - Total weight in grams
- * @param address - Full address object
+ * @param toAddress - Delivery address
+ * @param vendorId - Vendor ID to get their address from BusinessInformation
  * @returns Promise with shipping amount in cents
  */
 export const getShippingRate = async (
-  state: string,
   weight: number,
-  address: {
+  toAddress: {
     street1: string;
     street2?: string;
     city: string;
     state: string;
     zipcode: string;
     country?: string;
-  }
+  },
+  vendorId: string
 ): Promise<number> => {
   const result = await calculateShipping({
     totalWeight: weight,
-    address,
+    toAddress,
+    vendorId,
   });
 
   return result.shippingAmount;

@@ -5,16 +5,18 @@ import { calculateOrderTotals } from "../../utils/orderCalculator";
 import { OrderedProduct } from "../../types/types";
 
 const stripePaymentSheetController = async (req: Request, res: Response) => {
-  const { id, orderedGifts, address } = req.body as {
+  const { id, orderedGifts, address, vendorId } = req.body as {
     id: string;
     orderedGifts?: OrderedProduct[];
     address?: {
       line1: string;
+      line2?: string;
       city: string;
       state: string;
       zipcode: string;
       country?: string;
     };
+    vendorId?: string; // Vendor ID for shipping calculation
     amount?: number; // Legacy support - if amount is provided, use it directly
   };
 
@@ -32,8 +34,8 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
   try {
     let totalAmount: number;
 
-    // If orderedGifts and address are provided, calculate tax and shipping
-    if (orderedGifts && address) {
+    // If orderedGifts, address, and vendorId are provided, calculate tax and shipping
+    if (orderedGifts && address && vendorId) {
       const calculation = await calculateOrderTotals({
         orderedGifts,
         address: {
@@ -44,6 +46,7 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
           zipcode: address.zipcode,
           country: address.country || "US",
         },
+        vendorId: vendorId,
         customerId: user.stripeCustomerId,
       });
 
@@ -88,6 +91,7 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
           totalAmount: calculation.totalAmount,
           taxRate: calculation.taxRate,
           estimatedDeliveryDays: calculation.estimatedDeliveryDays,
+          shippingRates: calculation.shippingRates, // All rates from DHL, USPS, UPS, FedEx
         },
       });
     } else if (req.body.amount) {
@@ -119,7 +123,7 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
         .status(400)
         .json({
           message:
-            "Either 'amount' or 'orderedGifts' with 'address' must be provided",
+            "Either 'amount' or 'orderedGifts' with 'address' and 'vendorId' must be provided",
         });
     }
   } catch (error) {
