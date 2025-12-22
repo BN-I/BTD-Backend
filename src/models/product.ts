@@ -78,6 +78,30 @@ const Product = mongoose.Schema(
       type: Number,
       default: 365,
     },
+    weight: {
+      type: Number,
+      default: 0,
+      required: false,
+      // Weight in grams
+    },
+    length: {
+      type: Number,
+      default: 0,
+      required: false,
+      // Length in centimeters
+    },
+    width: {
+      type: Number,
+      default: 0,
+      required: false,
+      // Width in centimeters
+    },
+    height: {
+      type: Number,
+      default: 0,
+      required: false,
+      // Height in centimeters
+    },
     isDeleted: {
       type: Boolean,
       default: false,

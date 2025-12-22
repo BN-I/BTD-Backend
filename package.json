@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@easypost/api": "^8.4.0",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.9.3",
