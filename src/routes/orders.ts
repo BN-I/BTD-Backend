@@ -59,7 +59,7 @@ orderRouter.post(
   }
 );
 
-orderRouter.get(
+orderRouter.post(
   "/api/get-shipping-charges",
   async (req: Request, res: Response) => {
     getShippingCharges(req, res);

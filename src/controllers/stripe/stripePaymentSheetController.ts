@@ -1,27 +1,12 @@
 import User from "../../models/user";
 import { Request, Response } from "express";
 import { stripe } from "../../utils/stripeInstance";
-import { calculateOrderTotals } from "../../utils/orderCalculator";
-import { OrderedProduct } from "../../types/types";
 
 const stripePaymentSheetController = async (req: Request, res: Response) => {
-  const { id, orderedGifts, address, vendorId } = req.body as {
-    id: string;
-    orderedGifts?: OrderedProduct[];
-    address?: {
-      line1: string;
-      line2?: string;
-      city: string;
-      state: string;
-      zipcode: string;
-      country?: string;
-    };
-    vendorId?: string; // Vendor ID for shipping calculation
-    amount?: number; // Legacy support - if amount is provided, use it directly
-  };
+  const { id, amount } = req.body;
 
-  if (!id) {
-    return res.status(400).json({ message: "User ID is required" });
+  if (!id || !amount) {
+    return res.status(400).json({ message: "Invalid request" });
   }
 
   const user = await User.findById(id);
@@ -32,100 +17,27 @@ const stripePaymentSheetController = async (req: Request, res: Response) => {
       .json({ message: "User does not have a stripe customer id" });
 
   try {
-    let totalAmount: number;
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: user?.stripeCustomerId },
+      { apiVersion: "2024-12-18.acacia" }
+    );
 
-    // If orderedGifts, address, and vendorId are provided, calculate tax and shipping
-    if (orderedGifts && address && vendorId) {
-      const calculation = await calculateOrderTotals({
-        orderedGifts,
-        address: {
-          line1: address.line1,
-          line2: address.line2,
-          city: address.city,
-          state: address.state,
-          zipcode: address.zipcode,
-          country: address.country || "US",
-        },
-        vendorId: vendorId,
-        customerId: user.stripeCustomerId,
-      });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: "usd",
+      customer: user?.stripeCustomerId,
 
-      totalAmount = calculation.totalAmount;
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
 
-      // Return calculation breakdown along with payment intent
-      const ephemeralKey = await stripe.ephemeralKeys.create(
-        { customer: user?.stripeCustomerId },
-        { apiVersion: "2024-12-18.acacia" }
-      );
-
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: totalAmount,
-        currency: "usd",
-        customer: user?.stripeCustomerId,
-        automatic_tax: {
-          enabled: true,
-        },
-        shipping: {
-          address: {
-            line1: address.line1,
-            city: address.city,
-            state: address.state,
-            postal_code: address.zipcode,
-            country: address.country || "US",
-          },
-        },
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      });
-
-      return res.json({
-        paymentIntent: paymentIntent.client_secret,
-        ephemeralKey: ephemeralKey.secret,
-        customer: user?.stripeCustomerId,
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-        calculation: {
-          subtotal: calculation.subtotal,
-          taxAmount: calculation.taxAmount,
-          shippingAmount: calculation.shippingAmount,
-          totalAmount: calculation.totalAmount,
-          taxRate: calculation.taxRate,
-          estimatedDeliveryDays: calculation.estimatedDeliveryDays,
-          shippingRates: calculation.shippingRates, // All rates from DHL, USPS, UPS, FedEx
-        },
-      });
-    } else if (req.body.amount) {
-      // Legacy support: if amount is provided directly, use it
-      totalAmount = Math.round(req.body.amount * 100); // Convert to cents if in dollars
-
-      const ephemeralKey = await stripe.ephemeralKeys.create(
-        { customer: user?.stripeCustomerId },
-        { apiVersion: "2024-12-18.acacia" }
-      );
-
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: totalAmount,
-        currency: "usd",
-        customer: user?.stripeCustomerId,
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      });
-
-      return res.json({
-        paymentIntent: paymentIntent.client_secret,
-        ephemeralKey: ephemeralKey.secret,
-        customer: user?.stripeCustomerId,
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-      });
-    } else {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Either 'amount' or 'orderedGifts' with 'address' and 'vendorId' must be provided",
-        });
-    }
+    res.json({
+      paymentIntent: paymentIntent.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customer: user?.stripeCustomerId,
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+    });
   } catch (error) {
     res.status(400).json({ message: "Invalid request" });
     console.log(error);
