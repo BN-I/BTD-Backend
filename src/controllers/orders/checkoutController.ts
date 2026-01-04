@@ -13,10 +13,8 @@ const checkoutController = async (req: Request, res: Response) => {
     orderedGifts,
     user,
     event,
+    paymentBreakdown,
     totalAmount,
-    subtotal,
-    taxAmount,
-    shippingAmount,
     address,
     state,
     city,
@@ -29,9 +27,13 @@ const checkoutController = async (req: Request, res: Response) => {
     user: string;
     event: string;
     totalAmount: number;
-    subtotal?: number;
-    taxAmount?: number;
-    shippingAmount?: number;
+    paymentBreakdown?: {
+      vendor: string;
+      shipping: number;
+      tax: number;
+      subtotal: number;
+      total: number;
+    }[];
     address: string;
     state: string;
     city: string;
@@ -62,6 +64,10 @@ const checkoutController = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Zipcode is required" });
   }
 
+  if (!paymentBreakdown || paymentBreakdown.length === 0) {
+    return res.status(400).json({ message: "Payment breakdown is required" });
+  }
+
   // Group gifts by vendor
   const giftsByVendor = orderedGifts.reduce((acc, gift) => {
     if (!acc[gift.vendor]) {
@@ -82,40 +88,55 @@ const checkoutController = async (req: Request, res: Response) => {
         console.log(typeof vendor);
 
         // Calculate vendor subtotal (assuming prices are in dollars, convert to cents)
-        const vendorSubtotal = Math.round(
-          vendorGifts.reduce((acc, gift) => acc + gift.price, 0) * 100
-        );
-        
+        // const vendorSubtotal = Math.round(
+        //   vendorGifts.reduce((acc, gift) => acc + gift.price, 0) * 100
+        // );
+
         // Calculate vendor's portion of tax and shipping (proportional to their subtotal)
         // Note: subtotal, taxAmount, shippingAmount from request are in cents
         // We need to convert to dollars for database storage
-        const totalSubtotalCents = subtotal 
-          ? subtotal 
-          : Math.round(orderedGifts.reduce((acc, gift) => acc + gift.price, 0) * 100);
-        
-        const vendorTaxAmountCents = subtotal && taxAmount 
-          ? Math.round((vendorSubtotal / totalSubtotalCents) * taxAmount)
-          : 0;
-        const vendorShippingAmountCents = subtotal && shippingAmount
-          ? Math.round((vendorSubtotal / totalSubtotalCents) * shippingAmount)
-          : 0;
-        const vendorTotalAmountCents = vendorSubtotal + vendorTaxAmountCents + vendorShippingAmountCents;
+        // const totalSubtotalCents = subtotal
+        //   ? subtotal
+        //   : Math.round(
+        //       orderedGifts.reduce((acc, gift) => acc + gift.price, 0) * 100
+        //     );
+
+        // const vendorTaxAmountCents =
+        //   subtotal && taxAmount
+        //     ? Math.round((vendorSubtotal / totalSubtotalCents) * taxAmount)
+        //     : 0;
+        // const vendorShippingAmountCents =
+        //   subtotal && shippingAmount
+        //     ? Math.round((vendorSubtotal / totalSubtotalCents) * shippingAmount)
+        //     : 0;
+        // const vendorTotalAmountCents =
+        //   vendorSubtotal + vendorTaxAmountCents + vendorShippingAmountCents;
 
         // Convert to dollars for database storage (assuming database stores in dollars)
-        const vendorSubtotalDollars = vendorSubtotal / 100;
-        const vendorTaxAmountDollars = vendorTaxAmountCents / 100;
-        const vendorShippingAmountDollars = vendorShippingAmountCents / 100;
-        const vendorTotalAmountDollars = vendorTotalAmountCents / 100;
+        // const vendorSubtotalDollars = vendorSubtotal / 100;
+        // const vendorTaxAmountDollars = vendorTaxAmountCents / 100;
+        // const vendorShippingAmountDollars = vendorShippingAmountCents / 100;
+        // const vendorTotalAmountDollars = vendorTotalAmountCents / 100;
 
         // Create a new order record for this vendor
         const newOrder = new order({
           vendor,
           gifts: vendorGifts,
-          amount: vendorSubtotalDollars,
-          subtotal: vendorSubtotalDollars,
-          taxAmount: vendorTaxAmountDollars,
-          shippingAmount: vendorShippingAmountDollars,
-          totalAmount: vendorTotalAmountDollars,
+          amount: paymentBreakdown.find((pb) => pb.vendor === vendor)
+            ? paymentBreakdown.find((pb) => pb.vendor === vendor)!.total
+            : vendorGifts.reduce((acc, gift) => acc + gift.price, 0),
+          subtotal: paymentBreakdown.find((pb) => pb.vendor === vendor)
+            ? paymentBreakdown.find((pb) => pb.vendor === vendor)!.subtotal
+            : 0,
+          taxAmount: paymentBreakdown.find((pb) => pb.vendor === vendor)
+            ? paymentBreakdown.find((pb) => pb.vendor === vendor)!.tax
+            : 0,
+          shippingAmount: paymentBreakdown.find((pb) => pb.vendor === vendor)
+            ? paymentBreakdown.find((pb) => pb.vendor === vendor)!.shipping
+            : 0,
+          totalAmount: paymentBreakdown.find((pb) => pb.vendor === vendor)
+            ? paymentBreakdown.find((pb) => pb.vendor === vendor)!.total
+            : 0,
           user,
           event,
           address,
@@ -185,21 +206,31 @@ const checkoutController = async (req: Request, res: Response) => {
               const product = productMap.get(gift.product.toString());
               if (!product) continue;
 
-              const productImage = product.images && product.images[0] ? product.images[0] : "";
+              const productImage =
+                product.images && product.images[0] ? product.images[0] : "";
               const variations = [];
               if (gift.selectedVariations?.color) {
-                variations.push(`<span class="variation-item"><span class="variation-label">Color:</span> ${gift.selectedVariations.color}</span>`);
+                variations.push(
+                  `<span class="variation-item"><span class="variation-label">Color:</span> ${gift.selectedVariations.color}</span>`
+                );
               }
               if (gift.selectedVariations?.size) {
-                variations.push(`<span class="variation-item"><span class="variation-label">Size:</span> ${gift.selectedVariations.size}</span>`);
+                variations.push(
+                  `<span class="variation-item"><span class="variation-label">Size:</span> ${gift.selectedVariations.size}</span>`
+                );
               }
-              const variationsHTML = variations.length > 0 
-                ? `<div class="product-variations">${variations.join("")}</div>` 
-                : "";
+              const variationsHTML =
+                variations.length > 0
+                  ? `<div class="product-variations">${variations.join(
+                      ""
+                    )}</div>`
+                  : "";
 
               productsListHTML += `
                 <div class="product-item">
-                  <img src="${productImage}" alt="${product.title}" class="product-image" />
+                  <img src="${productImage}" alt="${
+                product.title
+              }" class="product-image" />
                   <div class="product-details">
                     <div class="product-name">${product.title}</div>
                     ${variationsHTML}
@@ -246,19 +277,27 @@ const checkoutController = async (req: Request, res: Response) => {
               : "";
 
             // Format tax and shipping rows for email
-            const taxAmountRow = vendorTaxAmountDollars > 0
-              ? `<div class="order-info-row">
+            const taxAmountRow =
+              paymentBreakdown.find((pb) => pb.vendor === vendor) &&
+              paymentBreakdown.find((pb) => pb.vendor === vendor)!.tax > 0
+                ? `<div class="order-info-row">
                   <span class="order-info-label">Tax:</span>
-                  <span class="order-info-value">$${vendorTaxAmountDollars.toFixed(2)}</span>
+                  <span class="order-info-value">$${paymentBreakdown
+                    .find((pb) => pb.vendor === vendor)!
+                    .tax.toFixed(2)}</span>
                 </div>`
-              : "";
-            
-            const shippingAmountRow = vendorShippingAmountDollars > 0
-              ? `<div class="order-info-row">
+                : "";
+
+            const shippingAmountRow =
+              paymentBreakdown.find((pb) => pb.vendor === vendor) &&
+              paymentBreakdown.find((pb) => pb.vendor === vendor)!.shipping > 0
+                ? `<div class="order-info-row">
                   <span class="order-info-label">Shipping:</span>
-                  <span class="order-info-value">$${vendorShippingAmountDollars.toFixed(2)}</span>
+                  <span class="order-info-value">$${paymentBreakdown
+                    .find((pb) => pb.vendor === vendor)!
+                    .shipping.toFixed(2)}</span>
                 </div>`
-              : "";
+                : "";
 
             await sendEmail({
               to: vendorUser.email,
@@ -280,13 +319,21 @@ const checkoutController = async (req: Request, res: Response) => {
                 state: state,
                 zipcode: zipcode,
                 additionalAddressInfo: additionalAddressHTML,
-                subtotal: vendorSubtotalDollars.toFixed(2),
-                taxAmount: vendorTaxAmountDollars.toFixed(2),
-                shippingAmount: vendorShippingAmountDollars.toFixed(2),
+                subtotal: paymentBreakdown
+                  .find((pb) => pb.vendor === vendor)!
+                  .subtotal.toFixed(2),
+                taxAmount: paymentBreakdown
+                  .find((pb) => pb.vendor === vendor)!
+                  .tax.toFixed(2),
+                shippingAmount: paymentBreakdown
+                  .find((pb) => pb.vendor === vendor)!
+                  .shipping.toFixed(2),
                 taxAmountRow: taxAmountRow,
                 shippingAmountRow: shippingAmountRow,
-                totalAmount: vendorTotalAmountDollars.toFixed(2),
-                dashboardUrl: process.env.DASHBOARD_URL 
+                totalAmount: paymentBreakdown
+                  .find((pb) => pb.vendor === vendor)!
+                  .total.toFixed(2),
+                dashboardUrl: process.env.DASHBOARD_URL
                   ? `${process.env.DASHBOARD_URL}/dashboard/orders`
                   : "#",
               },

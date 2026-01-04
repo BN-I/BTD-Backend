@@ -6,6 +6,7 @@ import { stripe } from "../../utils/stripeInstance";
 
 const getShippingCharges = async (req: Request, res: Response) => {
   try {
+    console.log("Request body:", req.body);
     const {
       vendor,
       address,
@@ -106,6 +107,10 @@ const getShippingCharges = async (req: Request, res: Response) => {
     // ============================
     // STRIPE TAX CALCULATION
     // ============================
+
+    console.log("type", typeof amount, amount);
+    const subtotalInCents = Math.round(Number(amount));
+
     const taxCalculation = await stripe.tax.calculations.create({
       currency: "usd",
       customer_details: {
@@ -120,7 +125,7 @@ const getShippingCharges = async (req: Request, res: Response) => {
       },
       line_items: [
         {
-          amount: amount,
+          amount: subtotalInCents,
           quantity: 1,
           tax_code: "txcd_99999999",
           reference: "product",
@@ -128,8 +133,10 @@ const getShippingCharges = async (req: Request, res: Response) => {
       ],
     });
 
+    console.log("Tax calculation:", taxCalculation);
+
     const taxAmount = taxCalculation.amount_tax;
-    const totalAmount = taxCalculation.amount_total;
+    const totalAmount = taxCalculation.amount_total + shippingAmount;
 
     // ============================
     // RESPONSE
