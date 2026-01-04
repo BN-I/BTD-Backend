@@ -30,7 +30,12 @@ const dispatchAmount = async (req: Request, res: Response) => {
 
     const transfer = await stripe.transfers.create({
       amount:
-        Math.floor(order.totalAmount - (order.totalAmount * 8) / 100) * 100, // cents
+        Math.floor(
+          order.subtotal -
+            (order.subtotal * 8) / 100 +
+            order.taxAmount +
+            order.shippingAmount
+        ) * 100, // cents
       currency: "usd",
       destination: vendor.stripeAccountId,
     });
