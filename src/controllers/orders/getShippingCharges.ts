@@ -3,10 +3,10 @@ import BusinessInformation from "../../models/businessInformation";
 import StoreInformation from "../../models/storeInformation";
 import axios from "axios";
 import { stripe } from "../../utils/stripeInstance";
+import Event from "../../models/event";
 
 const getShippingCharges = async (req: Request, res: Response) => {
   try {
-    console.log("Request body:", req.body);
     const {
       vendor,
       address,
@@ -15,26 +15,32 @@ const getShippingCharges = async (req: Request, res: Response) => {
       zip,
       weight,
       amount, // product subtotal in cents
+      event,
     } = req.body;
 
     if (!vendor || !address || !city || !state || !zip || !weight || !amount) {
       return res.status(400).json({ message: "Invalid request" });
     }
 
-    // Fetch vendor info
-    const businessInformation = await BusinessInformation.findOne({
-      vendorID: vendor,
-    });
+    // ============================
+    // FETCH DATA
+    // ============================
 
-    const storeInformation = await StoreInformation.findOne({
-      vendorID: vendor,
-    });
+    const [eventData, businessInformation, storeInformation] =
+      await Promise.all([
+        event ? Event.findById(event) : null,
+        BusinessInformation.findOne({ vendorID: vendor }),
+        StoreInformation.findOne({ vendorID: vendor }),
+      ]);
 
     if (!businessInformation || !storeInformation) {
       return res.status(404).json({ message: "Vendor not found" });
     }
 
-    // Get carriers
+    // ============================
+    // GET SHIPPING RATES
+    // ============================
+
     const carriers = await axios.get("https://api.shipengine.com/v1/carriers", {
       headers: {
         "Content-Type": "application/json",
@@ -42,12 +48,23 @@ const getShippingCharges = async (req: Request, res: Response) => {
       },
     });
 
-    // Get shipping rates
-    const shippingRates = await axios.post(
+    let filteredCarriers: any[] = [];
+
+    if (!storeInformation.carrier || storeInformation.carrier === "other") {
+      filteredCarriers = carriers.data.carriers;
+    } else {
+      filteredCarriers = carriers.data.carriers.filter((carrier: any) => {
+        console.log("carrier.carrier_code", carrier.carrier_code);
+        console.log("storeInformation.carrier", storeInformation.carrier);
+        return carrier.carrier_code === storeInformation.carrier;
+      });
+    }
+    console.log("filteredCarriers", filteredCarriers);
+    const shippingRatesResponse = await axios.post(
       "https://api.shipengine.com/v1/rates",
       {
         rate_options: {
-          carrier_ids: carriers.data.carriers.map(
+          carrier_ids: filteredCarriers.map(
             (carrier: any) => carrier.carrier_id
           ),
           package_type: "package",
@@ -55,13 +72,13 @@ const getShippingCharges = async (req: Request, res: Response) => {
         shipment: {
           validate_address: "no_validation",
           ship_to: {
+            name: "Customer",
             address_line1: address,
             city_locality: city,
             state_province: state,
             postal_code: zip,
             country_code: "US",
             address_residential_indicator: "no",
-            name: "Customer",
           },
           ship_from: {
             name: storeInformation.storeName,
@@ -92,23 +109,56 @@ const getShippingCharges = async (req: Request, res: Response) => {
       }
     );
 
-    // Pick lowest shipping rate
-    const rate = shippingRates.data.rate_response.rates.reduce(
-      (prev: any, curr: any) =>
-        parseFloat(prev.shipping_amount.amount) <=
-        parseFloat(curr.shipping_amount.amount)
-          ? prev
-          : curr,
-      shippingRates.data.rate_response.rates[0]
-    );
+    const rates = shippingRatesResponse.data?.rate_response?.rates || [];
 
-    const shippingAmount = Math.round(parseFloat(rate.shipping_amount.amount));
+    if (!rates.length) {
+      return res.status(400).json({ message: "No shipping rates available" });
+    }
+
+    // ============================
+    // PICK BEST SHIPPING RATE
+    // ============================
+
+    let selectedRate: any = null;
+
+    // 1️⃣ If event date exists → pick cheapest rate arriving on/before event
+    if (eventData?.fullDate) {
+      const eventDate = new Date(eventData.fullDate);
+
+      const eligibleRates = rates.filter((rate: any) => {
+        if (!rate.estimated_delivery_date) return false;
+        const deliveryDate = new Date(rate.estimated_delivery_date);
+        return deliveryDate <= eventDate;
+      });
+
+      if (eligibleRates.length) {
+        selectedRate = eligibleRates.reduce((mostExpensive: any, rate: any) =>
+          Number(rate.shipping_amount.amount) >
+          Number(mostExpensive.shipping_amount.amount)
+            ? rate
+            : mostExpensive
+        );
+      }
+    }
+
+    // 2️⃣ Fallback → expensive overall
+    if (!selectedRate) {
+      selectedRate = rates.reduce((mostExpensive: any, rate: any) =>
+        Number(rate.shipping_amount.amount) >
+        Number(mostExpensive.shipping_amount.amount)
+          ? rate
+          : mostExpensive
+      );
+    }
+
+    const shippingAmount = Math.round(
+      Number(selectedRate.shipping_amount.amount)
+    );
 
     // ============================
     // STRIPE TAX CALCULATION
     // ============================
 
-    console.log("type", typeof amount, amount);
     const subtotalInCents = Math.round(Number(amount));
 
     const taxCalculation = await stripe.tax.calculations.create({
@@ -116,8 +166,8 @@ const getShippingCharges = async (req: Request, res: Response) => {
       customer_details: {
         address: {
           line1: address,
-          city: city,
-          state: state,
+          city,
+          state,
           postal_code: zip,
           country: "US",
         },
@@ -133,24 +183,29 @@ const getShippingCharges = async (req: Request, res: Response) => {
       ],
     });
 
-    console.log("Tax calculation:", taxCalculation);
-
     const taxAmount = taxCalculation.amount_tax;
     const totalAmount = taxCalculation.amount_total + shippingAmount;
 
     // ============================
     // RESPONSE
     // ============================
+
     return res.status(200).json({
       shipping: shippingAmount,
       tax: taxAmount,
-      subtotal: amount,
+      subtotal: subtotalInCents,
       total: totalAmount,
-      tax_breakdown: taxCalculation.tax_breakdown,
+      selected_rate: {
+        carrier: selectedRate.carrier_code,
+        service: selectedRate.service_type,
+        delivery_date: selectedRate.estimated_delivery_date,
+      },
     });
   } catch (err: any) {
     console.error(err?.response?.data || err);
-    return res.status(500).json(err?.response?.data || err);
+    return res
+      .status(500)
+      .json(err?.response?.data || { message: "Server error" });
   }
 };
 

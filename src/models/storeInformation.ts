@@ -44,6 +44,11 @@ const StoreInformation = mongoose.Schema(
       default: "",
       required: false,
     },
+    carrier: {
+      type: String,
+      default: "",
+      required: false,
+    },
     instagram: {
       type: String,
       default: "",

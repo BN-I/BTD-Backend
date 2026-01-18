@@ -9,6 +9,7 @@ import requestPayment from "../controllers/orders/requestPayment";
 import { getAllOrders } from "../controllers/orders/getAllOrders";
 import dispatchAmount from "../controllers/orders/dispatchAmount";
 import { getShippingCharges } from "../controllers/orders/getShippingCharges";
+import { getCarriers } from "../controllers/orders/getCarriers";
 const { getVendorOrders } = require("../controllers/orders/getVendorOrders");
 const { getUserOrders } = require("../controllers/orders/getUserOrders");
 
@@ -58,6 +59,10 @@ orderRouter.post(
     dispatchAmount(req, res);
   }
 );
+
+orderRouter.get("/api/carriers", async (req: Request, res: Response) => {
+  getCarriers(req, res);
+});
 
 orderRouter.post(
   "/api/get-shipping-charges",
