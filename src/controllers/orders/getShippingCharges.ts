@@ -59,13 +59,13 @@ const getShippingCharges = async (req: Request, res: Response) => {
         return carrier.carrier_code === storeInformation.carrier;
       });
     }
-    console.log("filteredCarriers", filteredCarriers);
+
     const shippingRatesResponse = await axios.post(
       "https://api.shipengine.com/v1/rates",
       {
         rate_options: {
           carrier_ids: filteredCarriers.map(
-            (carrier: any) => carrier.carrier_id
+            (carrier: any) => carrier.carrier_id,
           ),
           package_type: "package",
         },
@@ -106,7 +106,7 @@ const getShippingCharges = async (req: Request, res: Response) => {
           "Content-Type": "application/json",
           "API-Key": process.env.SHIPENGINE_API_KEY || "",
         },
-      }
+      },
     );
 
     const rates = shippingRatesResponse.data?.rate_response?.rates || [];
@@ -124,35 +124,39 @@ const getShippingCharges = async (req: Request, res: Response) => {
     // 1️⃣ If event date exists → pick cheapest rate arriving on/before event
     if (eventData?.fullDate) {
       const eventDate = new Date(eventData.fullDate);
-
-      const eligibleRates = rates.filter((rate: any) => {
+      const eligibleRates = await rates.filter((rate: any) => {
         if (!rate.estimated_delivery_date) return false;
         const deliveryDate = new Date(rate.estimated_delivery_date);
+        console.log("deliveryDate", deliveryDate);
+        console.log("eventDate", eventDate);
         return deliveryDate <= eventDate;
       });
-
+      console.log("eligibleRates", JSON.stringify(eligibleRates));
       if (eligibleRates.length) {
-        selectedRate = eligibleRates.reduce((mostExpensive: any, rate: any) =>
-          Number(rate.shipping_amount.amount) >
-          Number(mostExpensive.shipping_amount.amount)
+        selectedRate = await eligibleRates.reduce((cheapest: any, rate: any) =>
+          Number(rate.shipping_amount.amount) <
+          Number(cheapest.shipping_amount.amount)
             ? rate
-            : mostExpensive
+            : cheapest,
         );
       }
+
+      console.log("selectedRate1", JSON.stringify(selectedRate));
     }
 
-    // 2️⃣ Fallback → expensive overall
     if (!selectedRate) {
-      selectedRate = rates.reduce((mostExpensive: any, rate: any) =>
+      // console.log("rates2", JSON.stringify(rates));
+      selectedRate = await rates.reduce((highest: any, rate: any) =>
         Number(rate.shipping_amount.amount) >
-        Number(mostExpensive.shipping_amount.amount)
+        Number(highest.shipping_amount.amount)
           ? rate
-          : mostExpensive
+          : highest,
       );
-    }
 
+      console.log("selectedRate2", JSON.stringify(selectedRate));
+    }
     const shippingAmount = Math.round(
-      Number(selectedRate.shipping_amount.amount)
+      Number(selectedRate.shipping_amount.amount),
     );
 
     // ============================
