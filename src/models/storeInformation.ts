@@ -45,8 +45,8 @@ const StoreInformation = mongoose.Schema(
       required: false,
     },
     carrier: {
-      type: String,
-      default: "",
+      type: Array<String>,
+      default: [],
       required: false,
     },
     instagram: {
@@ -67,7 +67,7 @@ const StoreInformation = mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model("StoreInformation", StoreInformation);

@@ -26,12 +26,16 @@ const getShippingCharges = async (req: Request, res: Response) => {
     // FETCH DATA
     // ============================
 
-    const [eventData, businessInformation, storeInformation] =
-      await Promise.all([
-        event ? Event.findById(event) : null,
-        BusinessInformation.findOne({ vendorID: vendor }),
-        StoreInformation.findOne({ vendorID: vendor }),
-      ]);
+    // const [eventData, businessInformation, storeInformation] =
+    //   await Promise.all([
+    const eventData = await Event.findById(event);
+    const businessInformation = await BusinessInformation.findOne({
+      vendorID: vendor,
+    });
+    const storeInformation = await StoreInformation.findOne({
+      vendorID: vendor,
+    });
+    // ]);
 
     if (!businessInformation || !storeInformation) {
       return res.status(404).json({ message: "Vendor not found" });
@@ -50,14 +54,18 @@ const getShippingCharges = async (req: Request, res: Response) => {
 
     let filteredCarriers: any[] = [];
 
-    if (!storeInformation.carrier || storeInformation.carrier === "other") {
+    if (
+      !storeInformation.carrier ||
+      storeInformation.carrier.length === 0 ||
+      typeof storeInformation.carrier === "string"
+    ) {
       filteredCarriers = carriers.data.carriers;
+      console.log("ALL CARRIERS SELECTED");
     } else {
       filteredCarriers = carriers.data.carriers.filter((carrier: any) => {
-        console.log("carrier.carrier_code", carrier.carrier_code);
-        console.log("storeInformation.carrier", storeInformation.carrier);
-        return carrier.carrier_code === storeInformation.carrier;
+        return storeInformation.carrier.includes(carrier.carrier_code);
       });
+      console.log("FILTERED CARRIERS SELECTED");
     }
 
     const shippingRatesResponse = await axios.post(
@@ -127,11 +135,8 @@ const getShippingCharges = async (req: Request, res: Response) => {
       const eligibleRates = await rates.filter((rate: any) => {
         if (!rate.estimated_delivery_date) return false;
         const deliveryDate = new Date(rate.estimated_delivery_date);
-        console.log("deliveryDate", deliveryDate);
-        console.log("eventDate", eventDate);
         return deliveryDate <= eventDate;
       });
-      console.log("eligibleRates", JSON.stringify(eligibleRates));
       if (eligibleRates.length) {
         selectedRate = await eligibleRates.reduce((cheapest: any, rate: any) =>
           Number(rate.shipping_amount.amount) <
@@ -140,20 +145,15 @@ const getShippingCharges = async (req: Request, res: Response) => {
             : cheapest,
         );
       }
-
-      console.log("selectedRate1", JSON.stringify(selectedRate));
     }
 
     if (!selectedRate) {
-      // console.log("rates2", JSON.stringify(rates));
       selectedRate = await rates.reduce((highest: any, rate: any) =>
         Number(rate.shipping_amount.amount) >
         Number(highest.shipping_amount.amount)
           ? rate
           : highest,
       );
-
-      console.log("selectedRate2", JSON.stringify(selectedRate));
     }
     const shippingAmount = Math.round(
       Number(selectedRate.shipping_amount.amount),
