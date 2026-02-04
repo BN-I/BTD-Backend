@@ -126,8 +126,12 @@ const Order = mongoose.Schema(
       type: String,
       required: false,
     },
+    selectedCarrier: {
+      type: String,
+      required: false,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 Order.pre("find", function (this: mongooseModel.Model<any>) {

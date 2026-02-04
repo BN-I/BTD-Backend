@@ -33,6 +33,7 @@ const checkoutController = async (req: Request, res: Response) => {
       tax: number;
       subtotal: number;
       total: number;
+      selectedCarrier?: string;
     }[];
     address: string;
     state: string;
@@ -69,13 +70,16 @@ const checkoutController = async (req: Request, res: Response) => {
   }
 
   // Group gifts by vendor
-  const giftsByVendor = orderedGifts.reduce((acc, gift) => {
-    if (!acc[gift.vendor]) {
-      acc[gift.vendor] = [];
-    }
-    acc[gift.vendor].push(gift);
-    return acc;
-  }, {} as { [key: string]: OrderedProduct[] });
+  const giftsByVendor = orderedGifts.reduce(
+    (acc, gift) => {
+      if (!acc[gift.vendor]) {
+        acc[gift.vendor] = [];
+      }
+      acc[gift.vendor].push(gift);
+      return acc;
+    },
+    {} as { [key: string]: OrderedProduct[] },
+  );
 
   try {
     console.log(event);
@@ -144,6 +148,10 @@ const checkoutController = async (req: Request, res: Response) => {
           city,
           zipcode,
           additionalAddressInfo,
+          selectedCarrier: paymentBreakdown.find((pb) => pb.vendor === vendor)
+            ? paymentBreakdown.find((pb) => pb.vendor === vendor)!
+                .selectedCarrier
+            : undefined,
           // Add any additional order data here like status, user info, etc.
         });
 
@@ -173,7 +181,7 @@ const checkoutController = async (req: Request, res: Response) => {
 
         // Fetch all products for this vendor's gifts
         const productPromises = vendorGifts.map((gift) =>
-          Product.findById(gift.product)
+          Product.findById(gift.product),
         );
         const allProducts = await Promise.all(productPromises);
 
@@ -211,26 +219,26 @@ const checkoutController = async (req: Request, res: Response) => {
               const variations = [];
               if (gift.selectedVariations?.color) {
                 variations.push(
-                  `<span class="variation-item"><span class="variation-label">Color:</span> ${gift.selectedVariations.color}</span>`
+                  `<span class="variation-item"><span class="variation-label">Color:</span> ${gift.selectedVariations.color}</span>`,
                 );
               }
               if (gift.selectedVariations?.size) {
                 variations.push(
-                  `<span class="variation-item"><span class="variation-label">Size:</span> ${gift.selectedVariations.size}</span>`
+                  `<span class="variation-item"><span class="variation-label">Size:</span> ${gift.selectedVariations.size}</span>`,
                 );
               }
               const variationsHTML =
                 variations.length > 0
                   ? `<div class="product-variations">${variations.join(
-                      ""
+                      "",
                     )}</div>`
                   : "";
 
               productsListHTML += `
                 <div class="product-item">
                   <img src="${productImage}" alt="${
-                product.title
-              }" class="product-image" />
+                    product.title
+                  }" class="product-image" />
                   <div class="product-details">
                     <div class="product-name">${product.title}</div>
                     ${variationsHTML}
@@ -348,7 +356,7 @@ const checkoutController = async (req: Request, res: Response) => {
         await eventObj.save();
 
         return newOrder;
-      })
+      }),
     );
 
     return res

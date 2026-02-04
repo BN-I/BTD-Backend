@@ -193,14 +193,14 @@ const getShippingCharges = async (req: Request, res: Response) => {
     // ============================
     // RESPONSE
     // ============================
-
+    console.log(selectedRate);
     return res.status(200).json({
       shipping: shippingAmount,
       tax: taxAmount,
       subtotal: subtotalInCents,
       total: totalAmount,
       selected_rate: {
-        carrier: selectedRate.carrier_code,
+        carrier: selectedRate.carrier_friendly_name,
         service: selectedRate.service_type,
         delivery_date: selectedRate.estimated_delivery_date,
       },
