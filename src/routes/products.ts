@@ -15,10 +15,10 @@ const upload = multer({ storage: storage });
 
 productsRouter.post(
   "/api/product",
-  upload.array("files", 5),
+  upload.array("files", 20),
   async (req: Request, res: Response) => {
     postProduct(req, res);
-  }
+  },
 );
 
 productsRouter.get("/api/product", async (req: Request, res: Response) => {
@@ -29,14 +29,14 @@ productsRouter.get(
   "/api/product/featured",
   async (req: Request, res: Response) => {
     getFeaturedProducts(req, res);
-  }
+  },
 );
 
 productsRouter.get(
   "/api/product/vendor/:id",
   async (req: Request, res: Response) => {
     getVendorProducts(req, res);
-  }
+  },
 );
 
 productsRouter.get("/api/product/new", async (req: Request, res: Response) => {
@@ -47,7 +47,7 @@ productsRouter.get(
   "/api/product/popular",
   async (req: Request, res: Response) => {
     getPopularProducts(req, res);
-  }
+  },
 );
 
 productsRouter.put(
@@ -55,14 +55,14 @@ productsRouter.put(
   upload.array("files", 5),
   async (req: Request, res: Response) => {
     updateProduct(req, res);
-  }
+  },
 );
 
 productsRouter.delete(
   "/api/product/:id",
   async (req: Request, res: Response) => {
     deleteProduct(req, res);
-  }
+  },
 );
 
 module.exports = productsRouter;
