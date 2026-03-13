@@ -20,6 +20,10 @@ const postProduct = async (req: Request, res: Response) => {
     link,
     orderMaxDays,
     orderMinDays,
+    weight,
+    length,
+    width,
+    height,
   } = req.body;
 
   const price = parseFloat(req.body.price);
@@ -132,10 +136,48 @@ const postProduct = async (req: Request, res: Response) => {
     });
   }
 
+  if (weight && isNaN(weight)) {
+    return res.status(400).json({
+      message: "Weight should be a number",
+    });
+  }
+
+  if (length && isNaN(length)) {
+    return res.status(400).json({
+      message: "Length should be a number",
+    });
+  }
+
+  if (width && isNaN(width)) {
+    return res.status(400).json({
+      message: "Width should be a number",
+    });
+  }
+
+  if (height && isNaN(height)) {
+    return res.status(400).json({
+      message: "Height should be a number",
+    });
+  }
+
+  if (weight || length || width || height) {
+    if (weight && length && width && height) {
+      if (weight <= 0 || length <= 0 || width <= 0 || height <= 0) {
+        return res.status(400).json({
+          message: "Weight, Length, Width and Height should be greater than 0",
+        });
+      }
+    } else {
+      return res.status(400).json({
+        message: "Weight, Length, Width and Height should be provided together",
+      });
+    }
+  }
+
   try {
     const images = await uploadImages(
       req.files,
-      process.env.AWS_S3_BUCKET_NAME!
+      process.env.AWS_S3_BUCKET_NAME!,
     );
     const product = await Product.create({
       title: title.trim(),
@@ -154,6 +196,10 @@ const postProduct = async (req: Request, res: Response) => {
       link,
       orderMaxDays,
       orderMinDays,
+      weight,
+      length,
+      width,
+      height,
     });
 
     res.status(201).json(product);
