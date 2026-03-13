@@ -19,12 +19,25 @@ const updateProduct = async (req: Request, res: Response) => {
     link,
     orderMaxDays,
     orderMinDays,
+    weight,
+    length,
+    width,
+    height,
+    crossedImages,
   } = req.body;
 
   let sizeVariations;
   let colorVariations;
   let price;
   let discountedPrice;
+
+  const existingProduct = await Product.findById(id);
+
+  if (!existingProduct) {
+    return res.status(404).json({
+      message: "Product not found",
+    });
+  }
 
   if (req.body.price) {
     price = parseFloat(req.body.price);
@@ -138,6 +151,44 @@ const updateProduct = async (req: Request, res: Response) => {
     });
   }
 
+  if (weight && isNaN(weight)) {
+    return res.status(400).json({
+      message: "Weight should be a number",
+    });
+  }
+
+  if (length && isNaN(length)) {
+    return res.status(400).json({
+      message: "Length should be a number",
+    });
+  }
+
+  if (width && isNaN(width)) {
+    return res.status(400).json({
+      message: "Width should be a number",
+    });
+  }
+
+  if (height && isNaN(height)) {
+    return res.status(400).json({
+      message: "Height should be a number",
+    });
+  }
+
+  if (weight || length || width || height) {
+    if (weight && length && width && height) {
+      if (weight <= 0 || length <= 0 || width <= 0 || height <= 0) {
+        return res.status(400).json({
+          message: "Weight, Length, Width and Height should be greater than 0",
+        });
+      }
+    } else {
+      return res.status(400).json({
+        message: "Weight, Length, Width and Height should be provided together",
+      });
+    }
+  }
+
   try {
     let images;
 
@@ -160,11 +211,25 @@ const updateProduct = async (req: Request, res: Response) => {
       link,
       orderMaxDays,
       orderMinDays,
+      weight,
+      length,
+      width,
+      height,
     };
 
     // Only add images to update if new images were uploaded
     if (images) {
-      updateFields.images = images;
+      // deleting crossedImages from images
+      console.log("existingProduct.images", existingProduct.images);
+      console.log("updateFields.images", updateFields.images);
+      console.log("crossedImages", crossedImages);
+      const filteredImages = existingProduct.images?.filter((image: string) => {
+        console.log("image", image);
+        return !crossedImages.includes(image);
+      });
+
+      console.log("filteredImages", filteredImages);
+      updateFields.images = [...filteredImages, ...images];
     }
 
     const product = await Product.findOneAndUpdate({ _id: id }, updateFields, {
@@ -173,6 +238,7 @@ const updateProduct = async (req: Request, res: Response) => {
 
     res.status(200).json(product);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: err });
   }
 };

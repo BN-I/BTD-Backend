@@ -1,4 +1,5 @@
 import AWS from "aws-sdk";
+import sharp from "sharp";
 
 export const s3Bucket = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -9,16 +10,28 @@ export const s3Bucket = new AWS.S3({
 export const uploadImages = async (file: any, bucketName: string) => {
   const uploadPromises = (file as Express.Multer.File[]).map(async (file) => {
     const fileName = `${Date.now()}-${file.originalname}`;
-
-    const uploadParams = {
-      Bucket: bucketName,
-      Key: fileName, // You can modify this to use custom file names
-      Body: file.buffer, // File content
-      ContentType: file.mimetype, // Mime type of the file (e.g., image/jpeg)
-      ACL: "public-read", // Make file publicly accessible (can be adjusted)
-    };
-
     try {
+      // Resize + optimize image for mobile
+      const optimizedImage = await sharp(file.buffer)
+        .resize({
+          width: 1080, // good max width for mobile
+          withoutEnlargement: true, // don't upscale small images
+        })
+        .jpeg({
+          quality: 75, // compression level
+          mozjpeg: true, // better compression
+        });
+
+      const uploadParams = {
+        Bucket: bucketName,
+        Key: fileName, // You can modify this to use custom file names
+        // Body: file.buffer, // File content
+        Body: optimizedImage,
+        // ContentType: file.mimetype, // Mime type of the file (e.g., image/jpeg)
+        ContentType: "image/jpeg",
+        ACL: "public-read", // Make file publicly accessible (can be adjusted)
+      };
+
       const s3Response = await s3Bucket.upload(uploadParams).promise();
       return s3Response.Location; // Return the file URL after upload
     } catch (err) {
