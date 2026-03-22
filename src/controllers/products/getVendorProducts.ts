@@ -18,6 +18,7 @@ const getVendorProducts = async (req: Request, res: Response) => {
       isDeleted: false,
     })
       .populate("storeInfo", "storeName")
+      .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 

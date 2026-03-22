@@ -9,6 +9,7 @@ const getFeaturedProducts = async (req: Request, res: Response) => {
       isFeatured: true,
     })
       .populate("storeInfo", "storeName")
+      .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 
