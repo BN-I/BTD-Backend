@@ -6,6 +6,7 @@ const getAllEvents = async (req: Request, res: Response) => {
 
   try {
     const events = await Event.find()
+      .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
     res.status(200).json(events);
