@@ -20,7 +20,11 @@ const paymentsStats = async (req: Request, res: Response) => {
 
     const totalEarnings = allOrders.reduce((acc: number, order: any) => {
       return (
-        acc + order.subtotal - (order.subtotal * 8) / 100 + order.shippingAmount
+        acc +
+        order.subtotal -
+        (order.subtotal * 8) / 100 +
+        order.shippingAmount +
+        order.taxAmount
       );
     }, 0);
     const totalOrders = allOrders.length;
@@ -39,7 +43,8 @@ const paymentsStats = async (req: Request, res: Response) => {
           acc +
           order.subtotal -
           (order.subtotal * 8) / 100 +
-          order.shippingAmount
+          order.shippingAmount +
+          order.taxAmount
         );
       },
       0,
@@ -59,7 +64,8 @@ const paymentsStats = async (req: Request, res: Response) => {
           acc +
           order.subtotal -
           (order.subtotal * 8) / 100 +
-          order.shippingAmount
+          order.shippingAmount +
+          order.taxAmount
         );
       },
       0,
@@ -68,7 +74,9 @@ const paymentsStats = async (req: Request, res: Response) => {
     /////////////////////////////////
 
     const subtotal = allOrders.reduce((acc: number, order: any) => {
-      return acc + order.subtotal * 0.92 + order.shippingAmount;
+      return (
+        acc + order.subtotal * 0.92 + order.shippingAmount + order.taxAmount
+      );
     }, 0);
 
     const paymentStats = {
