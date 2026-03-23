@@ -24,6 +24,7 @@ const postProduct = async (req: Request, res: Response) => {
     length,
     width,
     height,
+    availableStates,
   } = req.body;
 
   const price = parseFloat(req.body.price);
@@ -200,6 +201,7 @@ const postProduct = async (req: Request, res: Response) => {
       length,
       width,
       height,
+      availableStates,
     });
 
     res.status(201).json(product);

@@ -24,6 +24,7 @@ const updateProduct = async (req: Request, res: Response) => {
     width,
     height,
     crossedImages,
+    availableStates,
   } = req.body;
 
   let sizeVariations;
@@ -215,6 +216,7 @@ const updateProduct = async (req: Request, res: Response) => {
       length,
       width,
       height,
+      availableStates,
     };
 
     // Only add images to update if new images were uploaded

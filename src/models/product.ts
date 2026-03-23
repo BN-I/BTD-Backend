@@ -102,6 +102,11 @@ const Product = mongoose.Schema(
       required: false,
       // Height in centimeters
     },
+    availableStates: {
+      type: Array<string>,
+      default: [],
+      required: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

@@ -116,7 +116,7 @@ const getShippingCharges = async (req: Request, res: Response) => {
         },
       },
     );
-
+    console.log(JSON.stringify(shippingRatesResponse.data));
     const rates = shippingRatesResponse.data?.rate_response?.rates || [];
 
     if (!rates.length) {
@@ -127,34 +127,18 @@ const getShippingCharges = async (req: Request, res: Response) => {
     // PICK BEST SHIPPING RATE
     // ============================
 
-    let selectedRate: any = null;
+    const today = new Date();
+    const eventDate = eventData?.fullDate ? new Date(eventData.fullDate) : null;
+    const daysToEvent = eventDate
+      ? Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
 
-    // 1️⃣ If event date exists → pick cheapest rate arriving on/before event
-    if (eventData?.fullDate) {
-      const eventDate = new Date(eventData.fullDate);
-      const eligibleRates = await rates.filter((rate: any) => {
-        if (!rate.estimated_delivery_date) return false;
-        const deliveryDate = new Date(rate.estimated_delivery_date);
-        return deliveryDate <= eventDate;
-      });
-      if (eligibleRates.length) {
-        selectedRate = await eligibleRates.reduce((cheapest: any, rate: any) =>
-          Number(rate.shipping_amount.amount) <
-          Number(cheapest.shipping_amount.amount)
-            ? rate
-            : cheapest,
-        );
-      }
-    }
+    const useExpress = daysToEvent !== null && daysToEvent < 5;
+    const targetAttribute = useExpress ? "fastest" : "best_value";
 
-    if (!selectedRate) {
-      selectedRate = await rates.reduce((highest: any, rate: any) =>
-        Number(rate.shipping_amount.amount) >
-        Number(highest.shipping_amount.amount)
-          ? rate
-          : highest,
-      );
-    }
+    const selectedRate =
+      rates.find((rate: any) => rate.rate_attributes?.includes(targetAttribute)) ||
+      rates[0];
     const shippingAmount = Math.round(
       Number(selectedRate.shipping_amount.amount),
     );
