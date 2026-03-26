@@ -3,7 +3,7 @@ import User from "../../models/user";
 
 const getVendors = async (req: Request, res: Response) => {
   try {
-    const Vendors = await User.find({ role: "Vendor" });
+    const Vendors = await User.find({ role: "Vendor" }).sort({ createdAt: -1 });
     res.status(200).json(Vendors);
   } catch (e) {
     console.log(e);
