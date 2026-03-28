@@ -3,13 +3,16 @@ import Product from "../../models/product";
 
 const getNewProducts = async (req: Request, res: Response) => {
   const { page = 1, perPage = 10, eventDate } = req.query;
+  const { source } = req.query;
   try {
     const filter: Record<string, any> = { isDeleted: false };
-
+    if (source !== "admin" && source !== "vendor") {
+      filter.status = "Active";
+    }
     if (eventDate) {
       const remainingDays = Math.ceil(
         (new Date(eventDate as string).getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       );
       filter.orderMinDays = { $lt: remainingDays };
     }
