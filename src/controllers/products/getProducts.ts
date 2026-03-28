@@ -3,10 +3,12 @@ import Product from "../../models/product";
 
 const getProducts = async (req: Request, res: Response) => {
   const { page = 1, perPage = 10, eventDate, search } = req.query;
-
+  const { source } = req.query;
   try {
     const filter: Record<string, any> = { isDeleted: false };
-
+    if (source !== "admin" && source !== "vendor") {
+      filter.status = "Active";
+    }
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
