@@ -227,7 +227,7 @@ const updateProduct = async (req: Request, res: Response) => {
       console.log("crossedImages", crossedImages);
       const filteredImages = existingProduct.images?.filter((image: string) => {
         console.log("image", image);
-        return !crossedImages.includes(image);
+        return crossedImages && !crossedImages.includes(image);
       });
 
       console.log("filteredImages", filteredImages);
