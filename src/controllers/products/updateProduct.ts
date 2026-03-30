@@ -23,7 +23,6 @@ const updateProduct = async (req: Request, res: Response) => {
     length,
     width,
     height,
-    crossedImages,
     availableStates,
   } = req.body;
 
@@ -31,7 +30,9 @@ const updateProduct = async (req: Request, res: Response) => {
   let colorVariations;
   let price;
   let discountedPrice;
-
+  let crossedImages = req.body.crossedImages || [];
+  if (typeof crossedImages === "string") crossedImages = [crossedImages];
+  console.log("crossedImages", crossedImages);
   const existingProduct = await Product.findById(id);
 
   if (!existingProduct) {
@@ -232,8 +233,15 @@ const updateProduct = async (req: Request, res: Response) => {
 
       console.log("filteredImages", filteredImages);
       updateFields.images = [...filteredImages, ...images];
+    } else if (crossedImages) {
+      // If no new images but there are crossedImages, remove them from existing images
+      const filteredImages = existingProduct.images?.filter((image: string) => {
+        return !crossedImages.includes(image);
+      });
+      console.log("filteredImages", filteredImages);
+      updateFields.images = filteredImages || [];
     }
-
+    console.log("updateFields", updateFields);
     const product = await Product.findOneAndUpdate({ _id: id }, updateFields, {
       new: true,
     });
