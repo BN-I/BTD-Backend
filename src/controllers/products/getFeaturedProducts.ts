@@ -19,7 +19,7 @@ const getFeaturedProducts = async (req: Request, res: Response) => {
 
     const products = await Product.find(filter)
       .populate("storeInfo", "storeName")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: 1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 

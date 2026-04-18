@@ -23,7 +23,7 @@ const getPopularProducts = async (req: Request, res: Response) => {
 
     const products = await Product.find(filter)
       .populate("storeInfo", "storeName")
-      .sort({ orders: -1 })
+      .sort({ orders: -1, _id: 1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
 
