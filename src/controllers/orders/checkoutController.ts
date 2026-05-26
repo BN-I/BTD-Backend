@@ -20,6 +20,12 @@ const checkoutController = async (req: Request, res: Response) => {
     city,
     zipcode,
     additionalAddressInfo,
+    recipientName,
+    billingAddress,
+    billingState,
+    billingCity,
+    billingZipcode,
+    billingAdditionalAddressInfo,
   } = req.body as {
     orderedGifts: OrderedProduct[];
     amount: number;
@@ -40,6 +46,12 @@ const checkoutController = async (req: Request, res: Response) => {
     city: string;
     zipcode: string;
     additionalAddressInfo?: string;
+    recipientName?: string;
+    billingAddress?: string;
+    billingState?: string;
+    billingCity?: string;
+    billingZipcode?: string;
+    billingAdditionalAddressInfo?: string;
   };
 
   console.log(req.body);
@@ -148,6 +160,12 @@ const checkoutController = async (req: Request, res: Response) => {
           city,
           zipcode,
           additionalAddressInfo,
+          recipientName,
+          billingAddress,
+          billingState,
+          billingCity,
+          billingZipcode,
+          billingAdditionalAddressInfo,
           selectedCarrier: paymentBreakdown.find((pb) => pb.vendor === vendor)
             ? paymentBreakdown.find((pb) => pb.vendor === vendor)!
                 .selectedCarrier
@@ -322,11 +340,18 @@ const checkoutController = async (req: Request, res: Response) => {
                 eventTime: formattedEventTime,
                 eventNote: eventNoteHTML,
                 customerName: customerUser.name || "Customer",
+                recipientName: recipientName || "N/A",
                 address: address,
                 city: city,
                 state: state,
                 zipcode: zipcode,
                 additionalAddressInfo: additionalAddressHTML,
+                billingAddress: billingAddress || address,
+                billingCity: billingCity || city,
+                billingState: billingState || state,
+                billingZipcode: billingZipcode || zipcode,
+                billingAdditionalAddressInfo:
+                  billingAdditionalAddressInfo || additionalAddressHTML,
                 subtotal: paymentBreakdown
                   .find((pb) => pb.vendor === vendor)!
                   .subtotal.toFixed(2),

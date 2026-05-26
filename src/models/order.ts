@@ -126,6 +126,30 @@ const Order = mongoose.Schema(
       type: String,
       required: false,
     },
+    recipientName: {
+      type: String,
+      required: false,
+    },
+    billingAddress: {
+      type: String,
+      required: false,
+    },
+    billingState: {
+      type: String,
+      required: false,
+    },
+    billingCity: {
+      type: String,
+      required: false,
+    },
+    billingZipcode: {
+      type: String,
+      required: false,
+    },
+    billingAdditionalAddressInfo: {
+      type: String,
+      required: false,
+    },
     selectedCarrier: {
       type: String,
       required: false,

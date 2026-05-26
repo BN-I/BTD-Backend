@@ -88,19 +88,19 @@ const Product = mongoose.Schema(
       type: Number,
       default: 0,
       required: false,
-      // Length in centimeters
+      // Length in inches
     },
     width: {
       type: Number,
       default: 0,
       required: false,
-      // Width in centimeters
+      // Width in inches
     },
     height: {
       type: Number,
       default: 0,
       required: false,
-      // Height in centimeters
+      // Height in inches
     },
     availableStates: {
       type: Array<string>,

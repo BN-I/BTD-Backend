@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -274,11 +274,27 @@
         <div class="address-section">
           <div class="address-title">Shipping Address</div>
           <div class="address-text">
-            {{customerName}}<br />
+            {{recipientName}}<br />
             {{address}}<br />
             {{city}}, {{state}} {{zipcode}}<br />
             {{additionalAddressInfo}}
           </div>
+        </div>
+
+        <div class="section-title">📍 Billing Address</div>
+        <div class="address-section">
+          <div class="address-title">Billing Address</div>
+          <div class="address-text">
+            {{billingAddress}}<br />
+            {{billingCity}}, {{billingState}} {{billingZipcode}}<br />
+            {{billingAdditionalAddressInfo}}
+          </div>
+        </div>
+
+        <div class="section-title">📍 Sender</div>
+        <div class="address-section">
+          <div class="address-title">Sender Details</div>
+          <div class="address-text">{{customerName}}<br /></div>
         </div>
 
         <div class="section-title">💰 Order Summary</div>
@@ -287,8 +303,7 @@
             <span class="order-info-label">Subtotal:</span>
             <span class="order-info-value">${{subtotal}}</span>
           </div>
-          {{taxAmountRow}}
-          {{shippingAmountRow}}
+          {{taxAmountRow}} {{shippingAmountRow}}
           <div class="order-info-row">
             <span class="order-info-label">Total Amount:</span>
             <span

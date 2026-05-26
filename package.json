@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node build/server.js",
     "build": "tsc && node src/scripts/copy-email-templates.js",
-    "dev": "cross-env nodemon src/server.ts"
+    "dev": "cross-env nodemon src/server.ts",
+    "migrate:dimensions-to-inches": "ts-node src/scripts/migrate-dimensions-cm-to-inches.ts"
   },
   "author": "",
   "license": "ISC",
