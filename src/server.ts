@@ -6,6 +6,7 @@ import { databaseListeners } from "./database/listeners";
 var firebase = require("firebase-admin");
 import { createClient } from "redis";
 import { initializeRedisServer } from "./database/redis-clinet";
+import { startDailyNotificationCron } from "./service/dailyNotificationCron";
 
 const PORT = process.env.API_PORT || 8080;
 
@@ -38,6 +39,10 @@ function startServer() {
     credential: firebase.credential.cert(serviceAccount),
     projectId: "674723408270",
   });
+
+  // Start the daily push-notification cron (runs every day at 09:00 AM).
+  // Override the schedule via the DAILY_NOTIFICATION_CRON env variable.
+  startDailyNotificationCron();
 
   const envRequired = ["API_PORT", "JWT_SECRET"];
 
