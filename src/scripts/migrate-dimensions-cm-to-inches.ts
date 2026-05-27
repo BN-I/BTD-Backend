@@ -7,7 +7,7 @@ function convertDimension(value: any): number | null {
   if (value == null || typeof value !== "number" || isNaN(value) || value <= 0) {
     return null;
   }
-  return parseFloat((value * CM_TO_INCHES).toFixed(4));
+  return parseFloat((value * CM_TO_INCHES).toFixed(1));
 }
 
 async function migrate() {
