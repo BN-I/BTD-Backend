@@ -105,13 +105,13 @@ const updateEvent = async (req: Request, res: Response) => {
         recurringEvent,
         gifts,
       },
-      { new: true }
+      { new: true },
     );
     try {
       createNewNotification(event.user, "event", {
         title: "Event Updated",
         description: "You updated an event " + event.title,
-        sendPushNotification: false,
+        sendPushNotification: true,
       });
 
       await updateScheduledEvent(event);

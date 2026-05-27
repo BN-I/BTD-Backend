@@ -13,8 +13,9 @@ export const createNewNotification = async (
     description: string;
     imageURL?: string;
     sendPushNotification?: boolean;
-  }
+  },
 ) => {
+  console.log("createNewNotification called with options:", options); // Log the options to see what is being passed
   try {
     await User.findById(userId)
       .then(async (user: typeof User) => {
@@ -37,7 +38,7 @@ export const createNewNotification = async (
             },
             token: user.FCMToken,
           };
-
+          console.log("Sending push notification with message:", message); // Log the message being sent
           getMessaging()
             .send(message)
             .then((response) => {
@@ -78,7 +79,7 @@ export const sendEventNotification = async (event: any) => {
       createMessage(
         event.recipientPhone,
         event.note,
-        user.signature || `— From ${user?.name}`
+        user.signature || `— From ${user?.name}`,
       );
     }
   } catch (err) {

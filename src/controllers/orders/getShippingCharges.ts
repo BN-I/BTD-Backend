@@ -14,6 +14,9 @@ const getShippingCharges = async (req: Request, res: Response) => {
       state,
       zip,
       weight,
+      length,
+      width,
+      height,
       amount, // product subtotal in cents
       event,
     } = req.body;
@@ -105,6 +108,12 @@ const getShippingCharges = async (req: Request, res: Response) => {
                 value: weight,
                 unit: "ounce",
               },
+              dimensions: {
+                length: length,
+                width: width,
+                height: height,
+                unit: "inch",
+              },
             },
           ],
         },
@@ -130,15 +139,18 @@ const getShippingCharges = async (req: Request, res: Response) => {
     const today = new Date();
     const eventDate = eventData?.fullDate ? new Date(eventData.fullDate) : null;
     const daysToEvent = eventDate
-      ? Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.ceil(
+          (eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+        )
       : null;
 
     const useExpress = daysToEvent !== null && daysToEvent < 5;
     const targetAttribute = useExpress ? "fastest" : "best_value";
 
     const selectedRate =
-      rates.find((rate: any) => rate.rate_attributes?.includes(targetAttribute)) ||
-      rates[0];
+      rates.find((rate: any) =>
+        rate.rate_attributes?.includes(targetAttribute),
+      ) || rates[0];
     const shippingAmount = Math.round(
       Number(selectedRate.shipping_amount.amount),
     );

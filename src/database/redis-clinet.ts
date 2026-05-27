@@ -10,4 +10,5 @@ export const initializeRedisServer = async () => {
     process.exit(1);
   });
   await redisClient.connect();
+  console.log("Redis client connected");
 };
