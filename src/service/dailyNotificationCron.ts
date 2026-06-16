@@ -11,9 +11,9 @@ import NotificationSettings from "../models/notificationSettings";
 //   "0 8 * * *"  → 08:00 every day
 const DAILY_CRON_SCHEDULE = process.env.DAILY_NOTIFICATION_CRON || "0 9 * * *";
 
-const NOTIFICATION_TITLE = "HI There! 👋";
+const NOTIFICATION_TITLE = "Tick tock ⏰";
 const NOTIFICATION_DESCRIPTION =
-  "Check out what's new in the app today. Explore fresh products, upcoming events, and exclusive deals just for you!";
+  "Check your calendar for birthdays, anniversaries, and holidays. Schedule them now so nothing slips by";
 const NOTIFICATION_TYPE = "promotion";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
