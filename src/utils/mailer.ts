@@ -2,13 +2,14 @@ import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
+import { EmailTemplates, EmailTemplateKey } from "../emailTemplates";
 
 dotenv.config();
 
 interface SendEmailOptions {
   to: string;
   subject: string;
-  templateName: string;
+  template: EmailTemplateKey;
   variables: Record<string, string>;
 }
 
@@ -24,17 +25,23 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Copied into build/assets by scripts/copy-email-templates.js at build time.
+// Embedded as a CID attachment (referenced via src="cid:btd-logo" in
+// templates) so the logo renders without depending on a public image URL.
+const LOGO_PATH = path.join(__dirname, "..", "assets", "btd-logo.png");
+const LOGO_CID = "btd-logo";
+
 export const sendEmail = async ({
   to,
   subject,
-  templateName,
+  template,
   variables,
 }: SendEmailOptions) => {
   const templatePath = path.join(
     __dirname,
     "..",
     "emailTemplates",
-    templateName
+    EmailTemplates[template]
   );
 
   let html = fs.readFileSync(templatePath, "utf8");
@@ -48,5 +55,14 @@ export const sendEmail = async ({
     to,
     subject,
     html,
+    attachments: fs.existsSync(LOGO_PATH)
+      ? [
+          {
+            filename: "btd-logo.png",
+            path: LOGO_PATH,
+            cid: LOGO_CID,
+          },
+        ]
+      : [],
   });
 };

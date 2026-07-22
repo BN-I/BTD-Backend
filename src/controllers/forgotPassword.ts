@@ -35,7 +35,7 @@ class ForgotPasswordController {
     sendEmail({
       to: user.email,
       subject: "Forgot Password OTP",
-      templateName: "forgotPasswordOTP.html",
+      template: "forgotPasswordOTP",
       variables: {
         userName: user.name,
         otpCode: otp,

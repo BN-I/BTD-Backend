@@ -46,6 +46,7 @@ const getPastEvents = async (req: Request, res: Response) => {
       ],
 
       user: id,
+      isDeleted: { $ne: true },
     })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));

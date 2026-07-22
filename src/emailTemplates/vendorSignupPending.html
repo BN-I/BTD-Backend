@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Account Approved</title>
+    <title>Welcome to Before The Dates</title>
     <style>
       body {
         margin: 0;
@@ -28,23 +28,22 @@
       .content {
         padding: 30px;
       }
+      .status-badge {
+        display: inline-block;
+        background-color: #fff8e1;
+        color: #8a6d00;
+        border: 1px solid #f0dca0;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin: 10px 0 20px;
+      }
       .footer {
         background-color: #f0f0f0;
         padding: 20px;
         text-align: center;
         font-size: 12px;
         color: #777777;
-      }
-      .btn {
-        display: inline-block;
-        background-color: #000;
-        color: white !important;
-        padding: 12px 24px;
-        margin-top: 20px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: bold;
-        cursor: pointer;
       }
     </style>
   </head>
@@ -72,18 +71,18 @@
       <div class="content">
         <h2>Hi {{vendorName}},</h2>
         <p>
-          We're excited to let you know that your vendor account has been
-          <strong>approved</strong>! 🎉
+          Thanks for signing up as a vendor on <strong>{{platformName}}</strong>! 🎉
+        </p>
+        <div class="status-badge">Status: Pending Approval</div>
+        <p>
+          Your account has been created and is now waiting for review by our
+          admin team. We'll send you another email as soon as your account is
+          approved and ready to start selling.
         </p>
         <p>
-          You can now start listing your products and managing your store
-          through your dashboard.
+          If you have any questions in the meantime, our team is happy to
+          help.
         </p>
-        <p>
-          If you have any questions or need help getting started, our team is
-          here for you.
-        </p>
-        <a href="{{dashboardUrl}}" class="btn">Go to Dashboard</a>
       </div>
       <div class="footer">
         &copy; 2025 Before The Dates. All rights reserved.<br />

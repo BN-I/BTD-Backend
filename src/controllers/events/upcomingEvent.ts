@@ -45,6 +45,7 @@ const getUpcomingEvents = async (req: Request, res: Response) => {
     const events = await Event.find({
       $or: conditions,
       user: id,
+      isDeleted: { $ne: true },
     })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));

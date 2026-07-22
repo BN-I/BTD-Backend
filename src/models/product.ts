@@ -50,6 +50,17 @@ const Product = mongoose.Schema(
       default: [],
       required: false,
     },
+    outOfStockVariants: {
+      type: [
+        {
+          color: { type: String, required: true },
+          size: { type: String, required: true },
+          _id: false,
+        },
+      ],
+      default: [],
+      required: false,
+    },
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -111,6 +122,25 @@ const Product = mongoose.Schema(
       type: Boolean,
       default: false,
       required: false,
+    },
+    avgRating: {
+      type: Number,
+      default: 0,
+      required: false,
+      // literal mean of this product's own review ratings
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+      required: false,
+    },
+    weightedRating: {
+      type: Number,
+      default: 0,
+      required: false,
+      // Bayesian-adjusted rating (blends avgRating with the store-wide average,
+      // weighted by reviewCount) so a product with very few reviews isn't
+      // dragged to an extreme by a single outlier review
     },
   },
   { timestamps: true }

@@ -5,7 +5,7 @@ const getAllEvents = async (req: Request, res: Response) => {
   const { page = 1, perPage = 99999 } = req.query;
 
   try {
-    const events = await Event.find()
+    const events = await Event.find({ isDeleted: { $ne: true } })
       .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));

@@ -17,6 +17,7 @@ const getEvents = async (req: Request, res: Response) => {
   try {
     let events = await Event.find({
       user: id,
+      isDeleted: { $ne: true },
     })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage))

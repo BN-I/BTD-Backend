@@ -17,6 +17,7 @@ const getUserOrders = async (req: Request, res: Response) => {
       .find({
         user: id,
       })
+      .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(perPage))
       .limit(Number(perPage));
     res.status(200).json(orders);

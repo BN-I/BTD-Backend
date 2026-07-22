@@ -328,7 +328,7 @@ const checkoutController = async (req: Request, res: Response) => {
             await sendEmail({
               to: vendorUser.email,
               subject: `New Order Received - Order #${newOrder._id}`,
-              templateName: "orderReceived.html",
+              template: "orderReceived",
               variables: {
                 vendorName: vendorUser.name || "Vendor",
                 orderId: newOrder._id.toString(),
@@ -368,6 +368,9 @@ const checkoutController = async (req: Request, res: Response) => {
                   .total.toFixed(2),
                 dashboardUrl: process.env.DASHBOARD_URL
                   ? `${process.env.DASHBOARD_URL}/dashboard/orders`
+                  : "#",
+                invoiceUrl: process.env.API_URL
+                  ? `${process.env.API_URL}/orders/${newOrder._id}/shipping-invoice`
                   : "#",
               },
             });

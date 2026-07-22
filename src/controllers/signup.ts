@@ -6,6 +6,7 @@ import { stripe } from "../utils/stripeInstance";
 import notificationSetrtings from "../models/notificationSettings";
 import NotificationSettings from "../models/notificationSettings";
 import { isValidEmail } from "../utils/helperFunctions";
+import { sendEmail } from "../utils/mailer";
 
 class SignupController {
   static async Execute(req: Request, res: Response) {
@@ -77,6 +78,20 @@ class SignupController {
           user: newUser._id, // Link to the user
         });
         await notificationSettings.save().catch((err: any) => console.log(err));
+
+        if (role === UserRole.vendor) {
+          sendEmail({
+            to: newUser.email,
+            subject: "Welcome to Before The Dates - Account Pending Approval",
+            template: "vendorSignupPending",
+            variables: {
+              vendorName: newUser.name,
+              platformName: "Before The Dates",
+            },
+          })
+            .then(() => console.log("✅ Email sent"))
+            .catch((err) => console.error("❌ Error sending email", err));
+        }
 
         const userWithoutPassword = newUser.toJSON(); // Converts Sequelize model instance to plain object
         delete userWithoutPassword.password;

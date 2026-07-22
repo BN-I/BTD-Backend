@@ -24,7 +24,7 @@ const updateVendorStatus = async (req: Request, res: Response) => {
       sendEmail({
         to: vendor.email,
         subject: "Your Account is Approved!",
-        templateName: "accountApproved.html",
+        template: "accountApproved",
         variables: {
           vendorName: vendor.name,
           platformName: "Before The Dates",

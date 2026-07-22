@@ -14,3 +14,15 @@ fs.readdirSync(srcDir).forEach((file) => {
 });
 
 console.log("✅ Email templates copied to build/");
+
+// Static assets (e.g. logos embedded in generated PDFs)
+const assetsSrcDir = path.join(__dirname, "..", "assets");
+const assetsDestDir = path.join(__dirname, "..", "..", "build", "assets");
+
+if (fs.existsSync(assetsSrcDir)) {
+  fs.mkdirSync(assetsDestDir, { recursive: true });
+  fs.readdirSync(assetsSrcDir).forEach((file) => {
+    fs.copyFileSync(path.join(assetsSrcDir, file), path.join(assetsDestDir, file));
+  });
+  console.log("✅ Assets copied to build/");
+}

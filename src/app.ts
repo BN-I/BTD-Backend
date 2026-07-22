@@ -33,6 +33,7 @@ app.use(require("./routes/events"));
 app.use(require("./routes/paymentMethod"));
 app.use(require("./routes/stripe"));
 app.use(require("./routes/orders"));
+app.use(require("./routes/reviews"));
 app.use(require("./routes/user"));
 app.use(require("./routes/notifications"));
 app.use(require("./routes/notificationSettings"));

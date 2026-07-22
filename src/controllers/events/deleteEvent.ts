@@ -14,7 +14,11 @@ const deleteEvent = async (req: Request, res: Response) => {
   }
 
   try {
-    const event = await Event.findByIdAndDelete(id);
+    const event = await Event.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true },
+    );
     if (!event) {
       return res.status(404).json({
         message: "Event not found",
