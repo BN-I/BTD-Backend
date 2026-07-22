@@ -13,6 +13,7 @@ export const createNewNotification = async (
     description: string;
     imageURL?: string;
     sendPushNotification?: boolean;
+    saveNotification?: boolean;
   },
 ) => {
   console.log("createNewNotification called with options:", options); // Log the options to see what is being passed
@@ -27,7 +28,9 @@ export const createNewNotification = async (
           type: type,
         });
 
-        await notification.save().catch((e: Error) => console.log(e));
+        if (options.saveNotification !== false) {
+          await notification.save().catch((e: Error) => console.log(e));
+        }
 
         if (options.sendPushNotification) {
           const message = {
@@ -72,16 +75,15 @@ export const sendEventNotification = async (event: any) => {
         title: "Event Reminder",
         description: "You have an event: " + event.title,
         sendPushNotification: true,
+        saveNotification: true,
       });
     }
 
-    if (notificationSettings && notificationSettings?.textNotification?.event) {
-      createMessage(
-        event.recipientPhone,
-        event.note,
-        user.signature || `— From ${user?.name}`,
-      );
-    }
+    createMessage(
+      event.recipientPhone,
+      event.note,
+      `${user.signature || `— From ${user?.name}`}\n\nThis is an automated message, please do not reply.`,
+    );
   } catch (err) {
     console.log(err);
   }

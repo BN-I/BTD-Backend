@@ -68,6 +68,17 @@ const updateProduct = async (req: Request, res: Response) => {
     colorVariations = req.body.colorVariations;
   }
 
+  let outOfStockVariants;
+  if (req.body.outOfStockVariants) {
+    try {
+      outOfStockVariants = JSON.parse(req.body.outOfStockVariants);
+    } catch {
+      return res.status(400).json({
+        message: "outOfStockVariants should be a JSON array of {color, size}",
+      });
+    }
+  }
+
   if (!isValidObjectId(id)) {
     return res.status(400).json({
       message: "Product ID is not valid",
@@ -126,6 +137,27 @@ const updateProduct = async (req: Request, res: Response) => {
         "Size Variations should be an array of valid sizes. Ex: " +
         Object.values(ProductSizes).join(", "),
     });
+  }
+
+  if (outOfStockVariants) {
+    const effectiveColors = colorVariations || existingProduct.colorVariations || [];
+    const effectiveSizes = sizeVariations || existingProduct.sizeVariations || [];
+    if (
+      !Array.isArray(outOfStockVariants) ||
+      outOfStockVariants.some(
+        (v: any) =>
+          !v ||
+          typeof v.color !== "string" ||
+          typeof v.size !== "string" ||
+          !effectiveColors.includes(v.color) ||
+          !effectiveSizes.includes(v.size),
+      )
+    ) {
+      return res.status(400).json({
+        message:
+          "outOfStockVariants entries must be {color, size} pairs matching this product's colorVariations and sizeVariations",
+      });
+    }
   }
 
   if (status && !Object.values(ProductStatus).includes(status)) {
@@ -209,6 +241,7 @@ const updateProduct = async (req: Request, res: Response) => {
       isFeatured: isFeatured === "true",
       colorVariations,
       sizeVariations,
+      outOfStockVariants,
       status,
       link,
       orderMaxDays,

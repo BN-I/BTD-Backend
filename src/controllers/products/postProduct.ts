@@ -50,6 +50,17 @@ const postProduct = async (req: Request, res: Response) => {
     colorVariations = req.body.colorVariations;
   }
 
+  let outOfStockVariants;
+  if (req.body.outOfStockVariants) {
+    try {
+      outOfStockVariants = JSON.parse(req.body.outOfStockVariants);
+    } catch {
+      return res.status(400).json({
+        message: "outOfStockVariants should be a JSON array of {color, size}",
+      });
+    }
+  }
+
   if (!title || title === "" || typeof title !== "string") {
     return res.status(400).json({
       message: "Title is not valid or missing",
@@ -124,6 +135,24 @@ const postProduct = async (req: Request, res: Response) => {
     });
   }
 
+  if (
+    outOfStockVariants &&
+    (!Array.isArray(outOfStockVariants) ||
+      outOfStockVariants.some(
+        (v: any) =>
+          !v ||
+          typeof v.color !== "string" ||
+          typeof v.size !== "string" ||
+          !(colorVariations || []).includes(v.color) ||
+          !(sizeVariations || []).includes(v.size),
+      ))
+  ) {
+    return res.status(400).json({
+      message:
+        "outOfStockVariants entries must be {color, size} pairs matching this product's colorVariations and sizeVariations",
+    });
+  }
+
   if (status && !Object.values(ProductStatus).includes(status)) {
     return res.status(400).json({
       message:
@@ -192,6 +221,7 @@ const postProduct = async (req: Request, res: Response) => {
       isFeatured: isFeatured === "true",
       colorVariations,
       sizeVariations,
+      outOfStockVariants,
       vendor: vendorID,
       status,
       link,

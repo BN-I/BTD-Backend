@@ -83,17 +83,17 @@ export async function sendDailyNotificationsToAllUsers(): Promise<void> {
     type: NOTIFICATION_TYPE,
   }));
 
-  try {
-    await Notification.insertMany(notificationDocs, { ordered: false });
-    console.log(
-      `[DailyNotificationCron] Saved ${notificationDocs.length} notification records.`,
-    );
-  } catch (err) {
-    console.error(
-      "[DailyNotificationCron] Error saving notification records:",
-      err,
-    );
-  }
+  // try {
+  //   await Notification.insertMany(notificationDocs, { ordered: false });
+  //   console.log(
+  //     `[DailyNotificationCron] Saved ${notificationDocs.length} notification records.`,
+  //   );
+  // } catch (err) {
+  //   console.error(
+  //     "[DailyNotificationCron] Error saving notification records:",
+  //     err,
+  //   );
+  // }
 
   // ── 2. Send FCM multicast push notification ─────────────────────────────
   // FCM sendEachForMulticast supports up to 500 tokens per call.

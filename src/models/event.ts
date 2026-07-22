@@ -69,6 +69,11 @@ const Event = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
   },
 
   { timestamps: true }

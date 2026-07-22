@@ -92,7 +92,7 @@ const updateEvent = async (req: Request, res: Response) => {
 
   try {
     const event = await Event.findOneAndUpdate(
-      { _id: id },
+      { _id: id, isDeleted: { $ne: true } },
       {
         title,
         fullDate: parsedDate,
