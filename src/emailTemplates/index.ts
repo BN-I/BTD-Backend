@@ -10,6 +10,10 @@ export const EmailTemplates = {
   productReviewedAdmin: "productReviewedAdmin.html",
   reviewReported: "reviewReported.html",
   reviewStatusUpdated: "reviewStatusUpdated.html",
+  payoutRequestedVendor: "payoutRequestedVendor.html",
+  payoutRequestedAdmin: "payoutRequestedAdmin.html",
+  payoutDispatchedVendor: "payoutDispatchedVendor.html",
+  payoutDispatchedAdmin: "payoutDispatchedAdmin.html",
 } as const;
 
 export type EmailTemplateKey = keyof typeof EmailTemplates;

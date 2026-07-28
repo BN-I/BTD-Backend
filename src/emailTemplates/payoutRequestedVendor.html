@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Payout Requested</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f4f4;
+        color: #333333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #000;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 30px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #777777;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #000;
+        color: white !important;
+        padding: 12px 24px;
+        margin-top: 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .info-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #000;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .info-row {
+        margin: 8px 0;
+        font-size: 14px;
+      }
+      .info-label {
+        font-weight: 600;
+        color: #666;
+        display: inline-block;
+        width: 90px;
+      }
+      .icon-badge {
+        text-align: center;
+        padding: 28px 20px 0;
+      }
+      .icon-circle {
+        display: inline-block;
+        width: 72px;
+        height: 72px;
+        line-height: 72px;
+        border-radius: 50%;
+        font-size: 34px;
+        text-align: center;
+        background-color: #fdf1de;
+      }
+      .status-label {
+        display: block;
+        margin-top: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #b8720b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img
+          src="cid:btd-logo"
+          alt="Before The Dates"
+          width="40"
+          height="40"
+          style="
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 12px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            padding: 6px;
+          "
+        />
+        <h1 style="display: inline-block; vertical-align: middle; margin: 0">
+          Before The Dates
+        </h1>
+      </div>
+      <div class="icon-badge">
+        <span class="icon-circle">⏳</span>
+        <span class="status-label">Payout Requested</span>
+      </div>
+      <div class="content">
+        <h2>Hi {{vendorName}},</h2>
+        <p>
+          We've received your payout request for order
+          <strong>#{{orderId}}</strong>. Our team will review and dispatch it
+          shortly.
+        </p>
+
+        <div class="info-box">
+          <div class="info-row">
+            <span class="info-label">Order:</span> #{{orderId}}
+          </div>
+          <div class="info-row">
+            <span class="info-label">Amount:</span> ${{amount}}
+          </div>
+        </div>
+
+        <a href="{{dashboardUrl}}" class="btn">View in Dashboard</a>
+      </div>
+      <div class="footer">
+        &copy; 2025 Before The Dates. All rights reserved.<br />
+        Need help? Contact us at
+        <a href="mailto:support@beforethedates.com"
+          >support@beforethedates.com</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
